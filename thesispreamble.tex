@@ -1,0 +1,107 @@
+\documentclass[10pt]{book} 
+
+% foefel commando's om citaat en chapter op 1 pagina te krijgen...
+\makeatletter
+\newcommand\citaat{\if@openright\cleardoublepage\else\clearpage\fi
+                     \thispagestyle{plain}
+                     }
+
+% chapters that do not start at new page...
+\newcommand\chapterNoPageBreak{
+                     \thispagestyle{plain}
+                     \global\@topnum\z@ 
+                     \@afterindentfalse 
+                     \secdef\@chapter\@schapter}  
+\makeatother
+
+%net
+\textheight 18cm %19.3cm	% vele andere: slechts 17.5 
+\textwidth 12.5cm %12.3cm  	%lode zelfs 12.5
+\oddsidemargin 1.75cm
+\evensidemargin 1.75cm
+
+\usepackage[dutch,english]{babel}
+\usepackage{epstopdf} 
+\usepackage{fancyhdr}
+%\usepackage{epigraph}
+\usepackage{setspace}
+\usepackage{url}
+\usepackage{cite}
+\usepackage{rotating}
+\usepackage{amssymb, amsthm, amsmath, amscd}
+\newcommand{\binomial}[2]{\genfrac{(}{)}{0pt}{}{ #1 }{ #2 }}
+ 
+%figures 
+\usepackage{graphicx}
+\usepackage{subfigure}
+\usepackage[babel=false,english=american]{csquotes}
+
+\usepackage[strings]{underscore}
+
+% listings
+\usepackage{listings}
+\usepackage{courier}
+\renewcommand\lstlistlistingname{List of Listings} % default is Listings
+\lstset{language=C}
+
+%fancy heading
+\usepackage{fancyhdr}
+\pagestyle{fancyplain}
+
+% programming code listings
+\usepackage{listings}
+
+% boxedverbatim
+\usepackage{moreverb}
+
+
+\newcommand\bookepigraph[4]{
+\vspace{1em}\hfill{}\begin{minipage}{#1}{\begin{spacing}{0.9}
+\small\noindent\textit{#2}\end{spacing}
+\vspace{1em}
+\hfill{}{#3}\\
+ 
+\vspace{-1em}\begin{flushright}{#4}\end{flushright}}\vspace{2em}
+\end{minipage}}
+
+
+\newcommand\epigraph[3]{
+\vspace{1em}\hfill{}\begin{minipage}{#1}{\begin{spacing}{0.9}
+\small\noindent\textit{#2}\end{spacing}
+\vspace{1em}
+\hfill{}{#3}}\vspace{2em}
+\end{minipage}}
+
+
+
+
+
+
+\addtolength{\headheight}{3pt}         % allow 1 lines in 12pt
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+\renewcommand{\plainheadrulewidth}{0pt}
+\renewcommand{\plainfootrulewidth}{0pt}
+
+\renewcommand{\chaptermark}[1]{\markboth{#1}{}}
+\renewcommand{\sectionmark}[1]{\markright{\thesection\ #1}}
+
+\lhead[\fancyplain{}{\rm\thepage}]{\fancyplain{}{\rightmark}}
+\chead[]{}
+\rhead[\fancyplain{}{\leftmark}]{\fancyplain{}{\rm\thepage}}
+\lfoot[]{}
+\cfoot[]{\fancyplain{\rm\thepage}{}}
+\rfoot[]{}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+%  Prints your review date and 'Draft Version' (From Josullvn, CS, CMU) 
+\newcommand{\reviewtimetoday}[2]{\special{!userdict begin 
+/bop-hook{gsave 20 710 translate 45 rotate 0.8 setgray /Times-Roman
+findfont 12 scalefont setfont 0 0 moveto (#1) show 0 -12 moveto (#2)
+show grestore}def end}}
+% You can turn on or off this option. 
+%\reviewtimetoday{\today}{Draft Version} 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\input{macros.def}
+

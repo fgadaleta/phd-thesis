@@ -1,0 +1,81 @@
+% Example to generate the coverpages of a PhD thesis with PhDcover.sty
+% Please contact the TeX support team when experiencing problems.
+% This file produces a 125% size (to be reduced by 80%),
+% as is customary with the text pages as well.
+%
+\documentstyle[12pt,a4,PhDcover]{article}
+
+\begin{document}
+\degree{INF}
+
+\monthyear{January 2013}
+
+\title{TO BE DEFINED Virtualization-aware security strategies}
+\sidetitle{}
+
+\graduate{Francesco GADALETA}
+
+\udc{681.3$\ast$C21}
+
+\firstcoverpage{%
+	Promotoren : Wouter Joosen\\ 
+	Dr. ir. Y. VERBAETEN \\ 
+	Prof. Dr. ir. W. JOOSEN
+}
+\secondcoverpage{%
+         Jury :\\ 
+ 	Prof. Dr. ir. L. Froyen, voorzitter\\ 
+         Prof. Dr. ir. P. Verbaeten, promotor\\ 
+         Prof. Dr. ir. W. Joosen, promotor\\ 
+ 	Prof. Dr. ir. G. Janssens\\ 
+ 	Prof. ir. C. Huygens\\ 
+	Prof. Dr. ir. B. Dhoedt\\
+         Prof. Dr. ir. E. Van Lil\\ 
+}
+
+
+\pagestyle{empty}
+\newpage
+\section*{}
+
+\vspace*{13cm}
+
+\copyright  Katholieke Universiteit Leuven -- Faculteit Ingenieurswetenschappen\\
+Arenbergkasteel, B-3001 Heverlee (Belgium)\\
+
+%\vspace*{0.2cm}
+\noindent
+Alle rechten voorbehouden. Niets uit deze uitgave mag worden
+ver\-menig\-vuldigd en/of open\-baar gemaakt worden door middel van druk,
+fotocopie, microfilm, elektronisch of op welke andere wijze ook zonder
+voorafgaande schriftelijke toe\-stemming van de uitgever.\\
+
+%\vspace*{1cm}
+\noindent
+All rights reserved. No part of the publication may be reproduced in
+any form by print, photoprint, microfilm or any other means without
+written permission from the publisher.
+
+\begin{flushleft}
+D/2006/7515/78\\
+ISBN 90--5682--744--8\\
+\end{flushleft}
+
+%\extracoverpage{%
+%        Formaat: $16\times24$\,cm\\
+%        Op voorste kaft, blauwe zone bovenaan van 6\,cm\\[2mm]
+%        %
+%        Reductie van de kaft en cover-pagina's: 80\,\%\\
+% Geen reductie van de tekst\\        % 12pt a4
+%        Nederlandse samenvatting vooraan (pag ix tot xxiv) op\\
+%        ``blauw pastel'' papier\\[2mm]
+%        %
+%        Aantal exemplaren: 50
+%}
+
+\pagestyle{empty}
+\newpage
+
+\input{abstract}
+
+\end{document}

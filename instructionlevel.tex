@@ -1,0 +1,230 @@
+\chapter{Preventing stack based-buffer overflows in virtualized environment}\label{instructionlevel}
+<<<<<<< .mine
+Despite a plethora of available research in the field, one of the most insidious vulnerabilities affecting software nowadays is still the buffer overflow. According to the NIST's National Vulnerability Database\cite{nist}, 587 (10\% of all reported vulnerabilities) buffer overflow vulnerabilities were reported in 2008. Almost 90\% of those vulnerabilities had a high severity rating. (UPDATE THIS)
+=======
+Despite a plethora of available research in the field, one of the most insidious vulnerabilities affecting software nowadays is still the buffer overflow. According to the NIST's National Vulnerability Database\cite{nist}, 587 (10\% of all reported vulnerabilities) buffer overflow vulnerabilities were reported in 2008. Almost 90\% of those vulnerabilities had a high severity rating. (UPDATE THIS)\\
+A considerable number of countermeasures have been designed to combat buffer overflow attacks. Nevertheless, two factors necessitate further research into the field: the numerous types of existing attacks as well as the fact that effective countermeasures often go hand in hand with consistent overhead.  \\
+Since the deployment of virtualization technology focuses chiefly on servers, we believe that a reasonable place for increasing security seems to be at the level of the virtual machine monitor or hypervisor.
+>>>>>>> .r42
+
+<<<<<<< .mine
+A considerable number of countermeasures have been designed to combat buffer overflow attacks. Nevertheless, two factors necessitate further research into the field: the numerous types of existing attacks as well as the fact that effective countermeasures often go hand in hand with consistent overhead.  \\
+=======
+Here we examine the possibility of using virtualization technology to implement a countermeasure that protects against buffer overflow attacks. 
+The countermeasure works by adding a few extra instructions to the architecture, which are then emulated by the hypervisor. 
+After running performance benchmarks, a high overhead was observed. Our proof-of-concept software implementation illustrates that the proposed approach is feasible, while the hardware implementation does indeed result in a negligible overhead. 
+>>>>>>> .r42
+
+<<<<<<< .mine
+Since the deployment of virtualization technology focuses chiefly on servers, we believe that a reasonable place for increasing security seems to be at the level of the virtual machine monitor or hypervisor.
+
+Here we examine the possibility of using virtualization technology to implement a countermeasure that protects against buffer overflow attacks. 
+The countermeasure works by adding a few extra instructions to the architecture, which are then emulated by the hypervisor. 
+After running performance benchmarks, a high overhead was observed. Our proof-of-concept software implementation illustrates that the proposed approach is feasible, while the hardware implementation does indeed result in a negligible overhead. EXPAND ON THIS
+=======
+EXPAND ON THIS
+>>>>>>> .r42
+%Virtualization has become a very popular technology. After Intel added support for virtualization to its processors \cite{vptech, abstractanalysis}, this popularity increased even more. Windows Server 2008 comes with a hypervisor \cite{mss}, which will make this technology even more widely deployed.  
+%We show that adding this kind of countermeasure to a virtualized environment is feasible but, due to the high overhead it is not realistic.
+Most of the buffer overflow vulnerabilities are located on the stack \cite{Xu02architecturesupport} and one of the most effective ways to change the execution flow of the program is to modify the return address of a function. The vulnerability described in this chapter normally occurs in unsafe languages that allow the programmer to access arbitrary memory locations directly and without any restriction. One of the main reasons for which these languages are used is to build high performance applications or to exploit specific features of the hardware. 
+%Designing countermeasures to improve security for unsafe languages is a direction not to neglect. A survey of vulnerabilities and countermeasures for such languages is reported in \cite{Younan04codeinjection,Fayolle:2002:BOS}.
+
+The rest of this chapter is structured as follows: Section \ref{ins:problem} gives a description of buffer overflow with the aid of an example. In Section \ref{ins:related} we present an overview of known countermeasures and a comparison between the two most frequently used strategies against the vulnerability. A technical description of our approach in a virtualized system is described in Section \ref{ins:approach}.
+We evaluate our countermeasure in Section \ref{ins:evaluation} and discuss its limitations in Section \ref{ins:limitations}. Conclusions are provided in Section \ref{ins:conclusion}.
+
+\section{Problem description} \label{ins:problem}
+% SWITCH ME ON
+Despite a plethora of available research in the field, one of the most insidious vulnerabilities affecting software nowadays is still the buffer overflow. According to the NIST's National Vulnerability Database\cite{nist}, 587 (10\% of all reported vulnerabilities) buffer overflow vulnerabilities were reported in 2008. Almost 90\% of those vulnerabilities had a high severity rating.
+%A buffer overflow is the result of stuffing more data into a buffer than it can handle and may allow an attacker to control the execution flow of the attacked program.
+%A \emph{return-address attack} is an attack where the attacker exploits a buffer overflow vulnerability to change the return address of a function. It is often performed together with code injection through \emph{shellcode}. 
+%This execution of arbitrary code is what results in the high severity rating of most of the reported vulnerabilities. 
+%A typical function that is vulnerable to a buffer overflow is given in Listing \ref{list:vulnerable}
+%
+%\begin{lstlisting}[caption=A function that is vulnerable to buffer overflow, label= list:vulnerable]
+%char* vuln_foo(char *msg) {
+%   char *p;
+%   char buffer[30];
+%   p=buffer;
+%   strcpy(p, msg);
+%}
+%\end{lstlisting}    
+%\vspace{5mm}
+%
+%A standard prologue saves the frame pointer (FP)  to the stack and allocates space for local variables. The epilogue restores the saved frame and stack pointer (SP) as in Listing \ref{list:stdprlepi}.
+%
+%\begin{lstlisting}[caption=The standard prologue and epilogue of vuln\_foo(), label= list:stdprlepi]
+%prologue:
+%   pushl %ebp
+%   mov %esp, %ebp
+%   // local variables
+%   
+%  (vuln_foo body)
+%
+%epilogue:
+%   leave  // copies %ebp into %esp
+%     	  // restores %ebp from stack
+%   ret
+%	   // jump to address on 
+%           // top of the stack
+%\end{lstlisting}    
+%\vspace{5mm}
+%
+%If \texttt{buffer} can be overflowed,
+%
+%all out-of-boundary bytes may alter the value of pointer \texttt{p}, the saved frame pointer \texttt{\%ebp}, the return address, \texttt{vuln\_foo()}'s arguments and so on towards higher addresses.
+%If the return address (RET) is changed, the execution flow is hooked to the new address (if valid) and when the function returns, arbitrary code at that location will be executed.
+
+
+\section{Approach}\label{ins:approach}
+%Although the countermeasure introduced by Read-only RAD is considered safer and harder to exploit \footnote{No alterations are possible on the RAR where return addresses are saved. All other areas of the stack are still not protected.} a serious performance drawback must be taken into account. The countermeasure is very expensive because of the need to do two system calls in each function's prologue.\\
+%A solution to the serious performance penalty introduced might be to implement this strategy using virtualization by adding new instructions to save and restore the return address from a read-only memory. 
+%
+%FIXME 
+%The overhead of such a solution is expected to be much lower than the compiler version introduced by RAD.\\
+%FIXME
+%
+%Since virtualization is a widely deployed technology nowadays we are confident that it might represent the best scenario for such an implementation. In our implementation we emulated these new instructions in the Xen Hypervisor \cite{xen} in order to create a real-life demonstration with an extensively used virtualizing product.\\
+%The general idea of the countermeasure described in this paper is similar to the one used by RAD. But our implementation uses special (emulated) hardware instructions to access read-only memory where all the return addresses are stored. 
+%
+%New code must be added to implement this feature.
+%The assembly code generated by our modified GCC and instrumented with the new instructions is given below (Listing \ref{list:instr}). \\
+%
+%\begin{lstlisting}[caption=Instrumented assembly code of vuln\_foo(), label= list:instr]
+%main:
+%   call init_callretx 
+%   ...
+%
+%vuln_foo:
+% prologue:
+%    pushl %ebp
+%    mov %esp, %ebp
+%   // local variables
+%   callx 
+%	 (vuln_foo body)
+% epilogue:
+%    retx
+%    leave  // copies %ebp into %esp
+%          // restores %ebp from stack
+%    ret    // jump to address on 
+%           // top of the stack
+%\end{lstlisting}        
+%
+%A library to allocate a 4KB page and \emph{mprotect} it has been written and called at the beginning of every program in the main function. 
+%Two new hardware instructions are used to protect the function's return address and only these two instructions can access the read-only memory previously  allocated. 
+%This is achieved by adding the two instructions to the instruction set of the virtualized processor which will be trapped by the Xen hypervisor and will be emulated to save and restore the return address.
+%In our implementation 
+%\begin{itemize}
+%\item \begin{verbatim}
+%callx
+%\end{verbatim}
+% is added before the call instruction, it will save the return address onto the protected memory page
+%
+%\item \begin{verbatim}
+%retx
+%\end{verbatim}
+%is added right before the assembler \texttt{leave} instruction in function's epilogue. It will restore the return address from the protected memory page onto the stack.
+%\end{itemize}
+%
+%Return addresses of nested functions are stored at higher addresses within the page with the aid of a counter that permits to handle return addresses in a Last-In-First-Out order. This order will be preserved until the maximum number of nested functions is reached. 
+%This number depends on the size of the \emph{mprotected} page, which is 4KB in our implementation. Since the x86 architecture handles 32 bit addresses and a counter of the same size is required, our countermeasure can handle up to 1023 nested functions.\\
+%The basic idea used to implement this in Xen is to clear the write protection bit (WP) in the Control Register 0 (CR0) \footnote{CR0 has control flags that modify the basic operation of the processor. WP bit is normally set to prevent supervisor from writing into read-only memory.} before any write operation to read-only memory and then set it again. 
+%The Xen Hypervisor, which runs in supervisor mode, needs to be able to write to a read-only page from the user space memory. By unsetting the WP in CR0, the memory management unit does not check whether the page is read-only or not, allowing the new instruction to write directly.\\
+%Although Xen has the necessary code to capture illegal instructions, some setup is required to handle the new instructions' opcodes. New code that checks if the opcode we want to emulate occurred has been added.
+%When the new instruction's opcode occurs, the user space program context (\texttt{ctxt} structure) is updated.
+%This is required before calling \texttt{x86\_emulate} which will take the context structure as parameter and performs the emulation.  Before calling this function, the WP bit of \texttt{CR0} must be unset. Thus when \texttt{x86\_emulate} is called, all writes to memory can happen without any fault.\\
+%New code to emulate the \texttt{callx} and \texttt{retx} instructions in the hypervisor  has been added to \texttt{x86\_emulate.c}. 
+%
+%Since we need to save the return address from current stack to memory (callx) and from memory back to the stack (retx), we need two functions that move data from one space to the other. As in a regular Linux kernel the \texttt{copy\_to\_user} and \texttt{copy\_from\_user} functions perform this task.
+%A counter is needed to handle nested functions. This variable is incremented in \texttt{callx} and copied to the read-only memory, decremented in \texttt{retx} and copied back to the stack, to preserve a LIFO order.\\
+%A check if the return address has been altered may be performed before overwriting it with the saved value. However this will lead to a higher overhead in the overall test result. 
+
+
+\section{Evaluation}\label{ins:evaluation}
+%To test the performance overhead we ran several integer benchmarks from the suite SPEC CPU2000 \cite{spec2000}. We collected results running programs instrumented with the code that implements the countermeasure and without.\\
+%All tests were run on a single machine (Intel(R) Core(TM)2 Duo CPU E6750@2.66GHz, 4096MB RAM, GNU/Linux kernel 2.6.24-xen) running Xen 3.3.0. The GCC 4.2.3 compiler has been modified to instrument assembler code with new instructions.\\
+%The benchmarks show that this implementation experiences the unacceptable factor of between 5x to 30x slow-down  (Table 1).  Memory overhead is 4KB, which is negligible in comparison to memory required by the program itself.
+%
+%\begin{table} \label{table:xenres}
+% \begin{tabular}{ |l | c | r | r |}
+%    \hline
+%\textbf{Program} & \textbf{Base r/t(s)}& \textbf{Instr. r/t(s)}& \textbf{Overhead} \\ \hline
+% 164.gzip & 223 & 3203 & +1336.32\%  \\ \hline
+% 175.vpr  & 372 &  2892 &  +677.42\% \\ \hline
+%   176.gcc  & 225 & 2191 &    +873.78\%  \\ \hline
+%   181.mcf    &640   & 3849 &    +501.41\%  \\ \hline
+%   186.crafty    &114& 3676&   +3124.56\%  \\ \hline
+%   256.bzip2   &307 & 5161 &   +1581.11\%  \\ \hline
+%   300.twolf    &717 & 4007&   +458.86\%  \\
+%     \hline
+%  \end{tabular}
+%  \caption{SPEC CPU2000 benchmark results of our implementation in Xen [FG] waiting...}
+%\end{table}
+%
+%
+%
+% \begin{table}  
+%\caption{SPEC CPU2000 benchmark results of our implementation in QEMU}
+% \begin{tabular}{ |l | c | r | r|}
+%    \hline
+%\textbf{Program} & \textbf{Base r/t(s)} & \textbf{Instr. r/t(s)} & \textbf{Overhead} \\ \hline
+% 164.gzip & 1368 & 1446 & +5.7\%  \\ \hline
+%   176.gcc      &     1010 & 1067      & +5.6\%  \\ \hline
+%   181.mcf       &    646      &	 701       & 	+8.5\%  \\ \hline
+%   186.crafty    &    1542     & 	1656      &	+7.3\%  \\ \hline
+%   197.parser  &      2652    & 	 2844     &+7,2\%  \\ \hline
+%   255.vortex   &     2458     & 	2606      &	+6\%  \\ \hline
+%   256.bzip2    &     1638     & 	1729      &	+5.5\%  \\ \hline
+%   300.twolf     &    2316     & 	2399       &	+3.5\%  \\
+%     \hline
+%  \end{tabular}
+%  \end{table}  \label{table:qemures}
+%
+%The Xen implementation is affected by a significant increase of the execution time when compared to reference time. That is mostly due to the context switch to the hypervisor that is needed to perform the emulation.\\
+%We conclude from this, that this type of countermeasure, while technically feasible and faster than RAD, does not have a realistic chance of deployment except in higher security environments.
+
+
+\subsection{Limitations}\label{ins:limitations}
+%Performance results and discuss why that happens
+%The overhead introduced by Xen lead us to implement the same countermeasure in an emulated environment in order to show that this countermeasure may have a real life deployment if implemented in hardware. QEMU \cite{qemu}, a processor emulator, has been used for this purpose. 
+%
+%We added the same instructions to the emulated x86 instruction set. Although our countermeasure has been performed on an emulated x86 architecture, an implementation for all the other emulated processors is straightforward since we have created a store instruction  common to all architectures emulated by QEMU \cite{qemu}.\\
+%
+%A new Memory Management Unit (MMU) mode for the emulated x86 processor has been created. \\
+%When a normal store function is executed with this new mode, the MMU performs the translation from virtual to real address and automatically enables write permissions right before adding the translated entry to the Translation Lookaside Buffer (TLB)\cite{IA323}.
+%
+%With this mechanism we allow callx and retx instructions to perform writes to the protected memory in order to save and restore the return address respectively. 
+%To test the performance overhead of this implementation we used the same machine and configuration, with a different kernel version (2.6.27-9) and QEMU 0.9.1 (svn trunk).
+%The performance of the same countermeasure implemented into hardware greatly increased, as expected (Table 2)
+%We have performed a comparison with the original unprotected QEMU to have an idea of the overhead introduced by our countermeasure with respect to the non instrumented version. 
+
+
+\section{Related work}\label{ins:related}
+%Many countermeasures exist to protect against these types of problems \cite{Erlingsson:2007:LAD,Younan:2008:ECF}.
+%They range from safe languages \cite{Jim:2002:CSD,Necula:2002:CTS,Dhurjati:2003:MSR,Kowshik:2002:ECS,Xu04} that remove the vulnerabilities
+%entirely, to bounds checkers \cite{Jones:1997:BCB,Ruwase:2004:PDB,Dhurjati:2006:BCA,Akritidis:2008:WIT} that will perform runtime checks for
+%out-of-bounds accesses, to very lightweight countermeasures that prevent certain memory locations from being overwritten \cite{Cowan:1998:SAA,Chiueh:2001:RCT,Younan:2006:EPA,Younan:2006:EPA2} or prevent attackers from finding or executing injected code\cite{Bhatkar:2003:AOE,Barrantes:2003:RIS,Kc:2003:CCI,Cowan:2003:PPP,Bhatkar:2008:DSR}. Other countermeasures will provide execution monitoring to prevent or detect applications deviating from their normal behavior \cite{Sekar:2001:FAB,Kiriansky:2002:SEP,Abadi:2005:CFI}.
+%An extensive survey of these countermeasures can be found in \cite{Younan04codeinjection,Younan:2008:ECF}.
+%Two countermeasures are closely related to our approach: StackShield  \cite{stackshield} and RAD \cite{rad}.\\
+%StackShield saves a copy of the return address of the function (RET) to a memory area previously allocated and restores it from this memory before returning \cite{stackshield}. 
+%
+%The restored return address is not compared with the one saved in the prologue, however if detection is needed then it is trivial to add this. This strategy will keep the execution flow unchanged since the protected function always returns to its caller. Unfortunately this strategy is still affected by some drawbacks. The most relevant is that retarray is allocated in normal memory which is not the safest choice. Stackshield protects against return address attacks, not generic stack smashing. Local variables, functions' arguments, saved frame pointers may still be altered by different tricks. Some techniques to bypass this type of protections are described in \cite{Alexander:2005:DCBOP, Richarte02fourdifferent}.  
+%\\
+%A higher level of security is granted by Return Address Defender (RAD) \cite{rad}, however this countermeasure also comes with a higher performance penalty. \\
+%RAD automatically creates a Return Address Repository (RAR) to save return addresses.
+%Two similar protection modes are proposed: minezone RAD and read-only RAD. \\
+%Minezone RAD sets guard pages\footnote{Guard pages are pages that have no permissions set, any attempt to access them will cause a segmentation violation} surrounding RAR (mine zones) by a mprotect() system call. This protection is executed once, at program startup. With this mechanism RAR might be altered by a direct return address modification attack \footnote{FIXME} (if the attacked program satisfies several special conditions  \cite{rad}) without  modifying the mine zones.\\
+%Read-only RAD avoid this possibility by setting the RAR read-only. This protection is executed in the prologue code of each function call, after pushing the current address into the RAR. The performance penalty introduced by this mechanism is higher than in the former since two system calls are required for each function call. \\
+%Macro and micro benchmarks show that programs protected by read-only RAD experience a slow-down ranging from 140x to 200x \cite{rad}.
+
+\section{Conclusion}\label{ins:conclusion}
+%We described a countermeasure against the return address attack and implemented it by emulating hardware instructions for a virtualizing environment. Our main goal was to implement such a countermeasure for the widely used virtualization technology of Xen.
+%Macro and micro benchmarks revealed a high overhead mainly caused by the context switch needed to emulate the necessary instructions to store and read the return addresses from a protected page.
+%This means that it is not a countermeasure that can be used in a realistic deployment setting. However, results from the same implementation for an emulated processor showed that it may be more feasible in hardware.\\
+%We have considered virtualization as a platform to develop countermeasures for. With a different approach, the idea of implementing countermeasures against buffer overflows in hardware and virtualization is a promising solution in terms of performances and security. 
+%
+%As previously reported our countermeasure does not detect if a buffer overflow has occurred since it overwrites the return address of the protected function, without checking if it has been altered. \\
+%Is a failed-with-segfault program better than one that repairs the fault and continues its execution as nothing happened?\\
+%This is still an unanswered question. Our countermeasure allows the protected function to recover its caller's return address and continue its normal execution flow. We are aware that there are cases in which it is better to terminate the attacked program and log that a buffer overflow has occurred. 
+%A check of the saved return address to detect if the one currently on the stack has been tainted might be implemented with a little more overhead.\\
+%As explained this countermeasure protects only return addresses of functions. As discussed in \cite{Richarte02fourdifferent}, functions protected by such a countermeasure suffer from the attack to other components of the stack as local variables, function's arguments, saved frame pointers, etcetera.
+%This countermeasure could be extended based on the observation that many exploits that result in code execution, rely on modifying the value of a pointer. In this extended countermeasure, all pointers are stored in read-only memory preventing them from being modified directly by a vulnerability.  Whenever the program writes to a pointer, the compiler generates a special instruction that can be used to write to this pointer. If a vulnerability exists in a program that allows an attacker to overwrite arbitrary memory locations, this is prevented because only the special instruction can write to pointers. Since attackers are not be able to generate this special instruction until they are able to achieve code execution, this countermeasure would provide a significant improvement in protection against exploitation of these vulnerabilities.

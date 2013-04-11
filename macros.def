@@ -1,0 +1,60 @@
+\input xypic
+\newcommand{\morfism}[3]{\mbox{$#1: #2 \rightarrow #3$}}
+\newcommand{\Set}{{\bf Set}}
+\newcommand{\Grf}{{\bf Grf}}
+\newcommand{\FinSet}{{\bf FinSet}}
+\newcommand{\Dof}{{\bf Dof}}
+\newcommand{\FinDof}{{\bf FinDof}}
+\newcommand{\Id}{\mbox{\rm Id}}
+\newcommand{\Fun}{\mbox{\rm Fun}}
+\newcommand{\FinFun}{\mbox{\rm FinFun}}
+\newcommand{\Hom}{\mbox{\rm Hom}}
+\newcommand{\Nat}{\mbox{\rm Nat}}
+\newcommand{\Lex}{\mbox{\rm Lex}}
+\newcommand{\Mod}{\mbox{\rm Mod}}
+\newcommand{\colim}{\mbox{\rm colim }}
+\newcommand{\nat}{\mbox{\rm \bf N}}
+\newcommand{\strings}{\mbox{\rm \bf S}}
+\newcommand{\timevalues}{\mbox{\rm \bf T}}
+\newcommand{\dates}{\mbox{\rm \bf D}}
+%\newcommand{\implies}{\Rightarrow}
+\newcommand{\equiva}{\Leftrightarrow}
+\newcommand{\sigmaalg}{\mbox{$\Sigma \mbox{-\bf Alg}$}}
+\newcommand{\pialg}{\mbox{$\Pi \mbox{-\bf Alg}$}}
+\newcommand{\Def}{\mbox{\rm Def}}
+
+\newcommand{\et}[1]{\mbox{\scriptsize #1}}
+
+\newcommand{\infer}[3]{$\begin{array}{ll}
+                           \begin{array}{c}
+                                {#1} \\ \hline
+                                {#2}
+                           \end{array} ~  (\mbox{#3})
+                        \end{array}$}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{definition}{Definition}
+\newtheorem{corollary}{Corollary}
+\newtheorem{proposition}{Proposition}
+
+%\newenvironment{proof}{\par\noindent {\em Proof:}}{\hfill $\Box$}
+
+\newcommand{\substate}[1]{\par\noindent {\em #1}.\hspace{0.3cm}}
+\newcommand{\remark}{\substate{Remark}}
+\newcommand{\example}{\substate{Example}}
+
+\newcommand{\elred}[2]{\diagram #1 \rto^{\mbox{El}} & #2 \enddiagram}
+\newcommand{\elnf}[1]{\downarrow^{\mbox{El}} {#1}}
+\newcommand{\inred}[2]{\diagram #1 \rto^{\mbox{In}} & #2 \enddiagram}
+\newcommand{\innf}[1]{\downarrow^{\mbox{In}} {#1}}
+
+\newtheorem{spec}{Specification}[chapter]
+\newcommand{\specification}[2]{\begin{spec}\label{#2} #1.
+                                \par\noindent\hrulefill
+                                \begin{tgrind}
+                                \input{#2}
+                                \end{tgrind}
+                                \par\noindent\hrulefill
+                                \end{spec}}
+

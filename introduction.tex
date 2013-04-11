@@ -1,0 +1,104 @@
+\chapter{Introduction}\label{intro:introduction}
+
+\epigraph{2in}{A scientific truth does not triumph by convincing its opponents and making them see the light, but rather because its opponents eventually die and a new generation grows up that is familiar with it.}{Max Planck}{}
+
+%EXPAND ON THIS
+%Application Security support in the operating system kernel radhakrishnan06applicationSupport.pdf
+% what is an operating system, why it is critical, what attackers can do when they can control the OS
+% a survey of operating system security SELinux, TrustedBSD, CMW, all built on top of operating systems. 
+
+%Here write about your contribution, what exactly is the problem and how you are going to solve it. Give an overview of the process of your research.
+The last years have witnessed a rapidly growing number of complex services running on an increasing number of machines connected across the globe.
+Social networking, remote storage, media services and mobile computing are only a few examples of the enormous networked systems that made their appearance recently into marketplace \cite{socialinternet, datta, measureinternet}.
+
+An immediate consequence of such a connected world is that damage caused by bugs or malicious attacks 
+can spread faster and more effectively than in the past \cite{DBLP:journals/corr/abs-1202-3987, DBLP:conf/ntms/FaghaniML12, Yan:2011:MPO:1966913.1966939}. In a more connected world, attackers have the option of resorting to far more viable means of materialising their goals without the need to design attacks specific to the different types of existing machines. 
+
+Despite the appearance of new Internet services and client side applications, modern computing devices and the radical change of infrastructure technology, the operating system is still the main target of attackers, due to its crucial role in providing the needed interaction between a running process and the external world. 
+Essentially, the operating system controls directly hardware like the keyboard and other human interaction devices, video or network cards and any other chipset via device drivers; it executes critical operations like memory allocation and process scheduling; it initialises network connections on behalf of the running processes and provides the infrastructure required by multiple applications in order to be executed on the same physical hardware. Moreover, the operating system provides the security mechanisms aimed at protecting the private address space of each application running in a less privileged level. 
+Being, by necessity, part of the trusted computing base (TCB) of a system, it is not surprising that the number of attacks targeting such a critical component has never decreased over the years. 
+
+
+As a matter of fact, the increasing number of successful attacks on operating system kernels is yet another indicator of a more suitable environment for malicious activities. A software bug in the kernel of a widely used operating system can give rise to activities such as spamming, keylogging or stealth of private data, all of which can have immense global impact, as was the case with \emph{Storm Worm} \cite{1387718} and other bank fraud cases \cite{mcaffee} or as in a more recent attack deployed with the cooperation of the kernel and the web browser \cite{rootkit64, rootkit64anal}.
+
+Moreover, in the era of mobile computing, devices tend to be permanently connected. For mobile phone users constantly connected to the internet, it is at times easy to forget that they are, in effect, always on the Internet. A mobile device that has been compromised, and is thus capable of executing malicious code locally, could take advantage of this permanent connection and infect other peers much more easily than ever before \cite{avg, Vidas, androidmalware}.
+
+Another effect of the growth of internet services is the influence they have on the computing infrastructure. Modern Internet services need a greater level of reliability and redundancy \cite{6203493, citeulike:10297687, europecloud}. 
+
+As expected, the constant growth of complex internet services is followed by another phenomenon: a greater demand for improvement in reliability and optimisation of physical space and energy consumption \cite{litegreen, Beloglazov:2010:EER:1844765.1845139, Buyya_energy-efficientmanagement}. As systems become larger and more complex, the need to optimise resources becomes an imperative \cite{DBLP:conf/iscis/QuanBMLMSMTD11}. New technologies appear to have partially, but nonetheless efficiently, addressed the needs dictated by growth \cite{5474725, 5710870, Malakuti:2012:TMR:2161996.2162001, 5558007, CPE:CPE2972} .
+
+\emph{Virtualisation} is one such technology which arrived in the late 1990s\footnote{Virtualisation was first developed in the 1960s to better utilise mainframe hardware. In the late 1990s virtualisation was introduced to the x86 architecture as it became the industry standard \cite{Rosenblum:2004:RVM:1016998.1017000} and was designed to execute several operating systems simultaneously on the same physical processor.}.
+The technology, however, started to gain popularity only in the mid 2000s, when vendors like Intel and AMD extended the instruction set of their processors in order to provide hardware support with the purpose of lowering the performance overhead of the new technology. This fact allowed an extensive deployment to production systems. Moreover, hardware support allowed the parallel execution of a number of operating systems on the same physical hardware in complete isolation from each other, a feature that gave rise to an entirely new computing era. 
+Virtualisation has, in fact, redefined the concept of infrastructure and is paving the way for new business models, one of which is \emph{cloud computing}\cite{Buyya:2011:CCP:1971955}.
+
+In this new paradigm, computing resources or even entire virtual infrastructures can be purchased and allocated at a moment's notice. A branch of cloud computing, usually referred to as \emph{desktop virtualisation}, exploits the benefits of this new technology to deliver entire desktop environments, applications and user data on demand. Requirements like performance, easy management and mobility can be fulfilled in a straightforward way since they are fully supported by the design.
+
+Yet the numerous benefits of virtualisation are not limited to the industry and the IT business world. The field has also captured the attention of the security research community.
+Security researchers have been looking at virtualisation technology as an alternative approach for finding solutions to the familiar problems of the past decade and to provide mitigations to unresolved challenges.
+One such challenge involves the protection of operating system kernels. When a suspicious program is running at a privilege level as high as that of the operating system kernel, it may be extremely difficult to detect its malicious intent. 
+In such a scenario, both trusted and malicious code are granted the same access to available resources. Therefore the likelihood of malicious code disabling or circumventing any countermeasure becomes extremely high.
+
+
+One possible way to overcome the execution of trusted and malicious code with the same privileges, involves the isolation of the system in need of protection from the code that implements the countermeasure. As we shall demonstrate  in Chapter \ref{virt:paradigm}, hardware-supported virtualisation technology accommodates such a demand. 
+%A way to overcome such a limitation is making the target operating system aware of running on top of a hypervisor and take advantage of the isolation layer to localize the attack. Eventually, repairing those memory locations that have been compromised or restoring the trusted state of the virtual machine before the attack was detected are good mitigations against the spread to other machines. 
+%new ways of thinking about security should be provided, in order to design strategies that take advantage of the new technological insights.
+
+%Research into methodologies to provide security to systems experiencing cutting edge technology is essential.
+%In this PhD thesis we focus on virtualisation technology to improve the security of runtime systems and limit the impact of malicious attacks.  
+
+%[links] 
+%Getting the Desktop into the Cloud
+%http://www.oracle.com/technetwork/articles/entarch/oeea-desktop-301201.html
+%Virtual desktops
+%http://www.citrix.com/products/xendesktop/overview.html
+%History
+%http://www.vmware.com/virtualization/history.html
+%http://en.wikipedia.org/wiki/X86_virtualization
+
+
+\section{Problem statement}\label{intro:problem}
+Based on our belief that virtualisation technology will increasingly take over traditional systems, starting from internet services and desktop computing to mobile devices, we examine the possibility of using the new technology to solve issues that are closer to the security world rather than energy and space optimization.
+Here, we briefly discuss the different types of attacks that security researchers have been responding to thus far and for which we provide security mitigations. Although the research community has responded quite actively with many solutions that use different technologies, far greater effort should be dedicated to incorporating these solutions for production systems.
+In the course of this thesis we provide security mitigations for two kinds of attacks: attacks that compromise operating system kernels and attacks through modern web browsers and applications delivered on demand.  
+
+
+\paragraph{Attacks to the kernel}
+Due to their prominent position amongst user applications and hardware, operating system kernels have been a common target for attackers attempting to circumvent and modify protections to the best of their advantage. Such attacks appear quite often in the form of device drivers that are supposed to extend the kernel with a new feature or to control a particular type of device connected to the rest of the hardware, but are revealed to be malicious \cite{Blunden:2009:RAE:1572523, Butt_protectingcommodity, Boyd-Wickizer:2010:TMD:1855840.1855849, DBLP:conf/sp/NavarroNO12}.
+
+Even a software bug in the kernel can be exploited to inject and execute malicious code. Regardless of the way in which the kernel is compromised, the result is malicious code running at the highest privilege level. This can not only make the attack stealthy but also has the potential to circumvent any countermeasure in place.
+
+
+\paragraph{Attacks through web browsers}
+In order to provide better web experience, modern web browsers are supported by a richer environment and more complex software architecture. It is common to extend the functionality of modern web browsers with plug-ins or script language engines that interact via an API. This higher complexity has also led to numerous security problems \cite{harden,6167512}. Moreover, the browser is often written in unsafe languages for performance reasons. This exposes it to the memory corruption vulnerabilities that can occur in programs written in these languages, such as buffer overflows and dangling pointer references. The presence of interpreters, plugins and extensions that can easily be embedded to the core of the browser made these environments an appealing target for the most recent attacks \cite{Heiderich:2012:SAS:2382196.2382276, Brahmasani:2012:PXA:2382756.2382768}.
+
+
+\section{Contributions}
+%All the environments considered by this work are an example of a runtime system that imposes quite strict limitations to the designer such as business continuity and minimal performance overhead.
+%business continuity detection of ongoing attack should not interrupt the system and temporarily repair it
+%stack-based buffer overflows, we investigate the use of hypervisor technology as another way to protect programs running in guest operating systems. Details about this contribution are provided in Chapter X.
+%Although the literature offers a considerable amount of solutions for the first problem [refs], that is not the case for compromission of operating system kernels. 
+%Therefore in Chapter X(rootkitty) and Chapter Y(hyperforce) we describe our protection against compromission of virtualized kernels via the hypervisor. 
+%Finally, we explore the benefits of virtualization technology as a support to our countermeasure against heap-spraying attacks implemented in a modern web browser in Chapter Z.
+ 
+%In the first part of the thesis, we investigate the applicability of virtualization technology for countermeasures against the first type of attack described. Since virtualisation is increasing its popularity every year and this trend does not seem to reduce, we think that a logical place to increase security might be at the level of the hypervisor. 
+
+The first part of our work tackles the problem of attacks to operating system kernels. Virtualisation technology fits very well in such scenarios due to a number of interesting features that come by design, such as isolation and hardware support. Therefore, we argue that a logical place where security ought to be increased is at the level of the \emph{hypervisor}, the layer that is interposed between the virtual machine and the physical hardware. In Chapter \ref{virt:paradigm} we describe virtualisation technology and we provide details regarding the interposition of the hypervisor during execution of the operating systems running on top.
+
+A countermeasure against kernel attacks, which relies on the cooperation between the target system and the hypervisor, is described in Chapter \ref{hellorootkitty}. A mitigation that we found to be effective against the corruption of kernel code at runtime consists in checking the integrity of potential targets, independently from the execution of the virtual machine, namely the target system. We identify the hypervisor as a suitable place in which implementing the aforementioned checkings.
+  
+A more general purpose framework that protects an operating system kernel running within a virtual machine is explained in Chapter \ref{hyperforce}. This protection is achieved by enforcing the execution of secure code into the target machine. While maintaining target code and secure code isolated, our solution also provides a minimal overhead, due to the fact that secure code executes within the same system to be protected.
+
+
+Another environment that needs even more attention from the security research community, due to its prominent position in everyday computer usage is the web browser's and applications delivered on demand. We focus on these other environments in the second part of our work. 
+Although security of web browsers is a very active field of research, very little has been done to protect browsers with virtualisation in mind. 
+
+Therefore we provide a security measure that improves web browser security and we explore the benefits of virtualisation technology in this area. A recent heap-based attack, by which attackers can allocate malicious objects to the heap of a web browser, by loading a specially forged web page that contains Javascript code, has drawn the attention of security researchers who operate in the field of browser security. We explain the details of a lightweight countermeasure against such attacks, known as \emph{heap-spraying}. We also argue in favour of the role that virtualisation technology can play within this environment and discuss a possible strategy for integrating such a countermeasure into web browsers and applications with a similar architecture, delivered on demand. Details are provided in Chapter \ref{bubble}.
+
+
+Conclusions are given in Chapter \ref{conclusion}. In the same chapter we also explain the drawbacks of virtualisation technology - in terms of performance overhead - with the aid of a case study that involves the mitigation of \emph{stack based buffer overflows} - and provide our conclusion about the reasons of such a performance impact. Future work and research opportunities are discussed in the same chapter.
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "thesis"
+%%% End: 

@@ -1,0 +1,59 @@
+% latex definitions, settings, parameters 
+\input thesispreamble
+
+% to generate only a subset of the chapters mentioned below
+% .aux files are needed for cross-chapter references!
+%\includeonly{Introduction,Background}
+
+\begin{document}			
+
+% preface 
+\pagestyle{empty}
+\include{thanks}
+\newpage
+\include{ZjefKobe}
+
+\frontmatter
+\pagestyle{fancyplain}
+
+\tableofcontents
+\listoffigures
+\listoftables
+\lstlistoflistings
+
+% body of the text
+\mainmatter
+
+% chapters 
+\selectlanguage{english}
+
+\include{introduction}
+\include{virtualization}
+
+%%\include{instructionlevel}
+\include{hellorootkitty}
+\include{hyperforce}
+\input{bubble}
+
+%\include{related}
+\include{conclusion}
+
+% bibliography
+\bibliographystyle{ieeetr}
+\bibliography{biblio}
+
+% list of publications & curriculum vitae
+\newpage
+\pagestyle{empty}
+\include{publications}
+\newpage
+\pagestyle{empty}
+\include{CV}
+
+\end{document}
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: t
+%%% End: 
