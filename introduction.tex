@@ -89,13 +89,28 @@ A countermeasure against kernel attacks, which relies on the cooperation between
 A more general purpose framework that protects an operating system kernel running within a virtual machine is explained in Chapter \ref{hyperforce}. This protection is achieved by enforcing the execution of secure code into the target machine. While maintaining target code and secure code isolated, our solution also provides a minimal overhead, due to the fact that secure code executes within the same system to be protected.
 
 
-Another environment that needs even more attention from the security research community, due to its prominent position in everyday computer usage is the web browser's and applications delivered on demand. We focus on these other environments in the second part of our work. 
+Another environment that needs attention from the security research community, due to its prominent position in everyday computer usage is the web browser's and applications delivered on demand. We focus on these other environments in the second part of our work. 
 Although security of web browsers is a very active field of research, very little has been done to protect browsers with virtualisation in mind. 
 
-Therefore we provide a security measure that improves web browser security and we explore the benefits of virtualisation technology in this area. A recent heap-based attack, by which attackers can allocate malicious objects to the heap of a web browser, by loading a specially forged web page that contains Javascript code, has drawn the attention of security researchers who operate in the field of browser security. We explain the details of a lightweight countermeasure against such attacks, known as \emph{heap-spraying}. We also argue in favour of the role that virtualisation technology can play within this environment and discuss a possible strategy for integrating such a countermeasure into web browsers and applications with a similar architecture, delivered on demand. Details are provided in Chapter \ref{bubble}.
+Therefore, we provide a security measure that improves web browser security and we explore the benefits of virtualisation technology in this area. A recent heap-based attack, by which attackers can allocate malicious objects to the heap of a web browser, by loading a specially forged web page that contains Javascript code, has drawn the attention of security researchers who operate in the field of browser security. We explain the details of a lightweight countermeasure against such attacks, known as \emph{heap-spraying}. We also argue in favour of the role that virtualisation technology can play within this environment and discuss a possible strategy for integrating such a countermeasure into web browsers and applications with a similar architecture, delivered on demand. Details are provided in Chapter \ref{bubble}.
 
 
 Conclusions are given in Chapter \ref{conclusion}. In the same chapter we also explain the drawbacks of virtualisation technology - in terms of performance overhead - with the aid of a case study that involves the mitigation of \emph{stack based buffer overflows} - and provide our conclusion about the reasons of such a performance impact. Future work and research opportunities are discussed in the same chapter.
+
+
+The work presented in this dissertation has led to the following publications:
+\begin{itemize}
+\item Francesco Gadaleta, Yves Younan, Bart Jacobs, Wouter Joosen, Erik De Neve, Nils Beosier, Instruction-level countermeasures against stack-based buffer overflow attacks, Eurosys, Nuremberg, 1-3 April 2009 
+
+\item Francesco Gadaleta, Yves Younan, Wouter Joosen, Bubble: a Javascript engine level countermeasure against heap-spraying attacks, ESSoS, Pisa, 3-4 February 2010
+
+\item Francesco Gadaleta, Nick Nikiforakis, Yves Younan, Wouter Joosen, Hello rootKitty: A lightweight invariance-enforcing framework, ISC Information Security Conference, Xi'an China, 2011
+
+\item Francesco Gadaleta, Raoul Strackx, Nick Nikiforakis, Frank Piessens, Wouter Joosen, On the effectiveness of virtualization-based security, IT Security, Freiburg (Germany), 07-10 May 2012
+
+\item Francesco Gadaleta, Nick Nikiforakis, Jan Tobias MŸhlberg, Wouter Joosen, Hyperforce: hypervisor-enforced execution of security-critical code, IFIP Advances in Information and Communication Technology, Heraklion, 04-06 June 2012
+\end{itemize}
+
 
 
 %%% Local Variables: 

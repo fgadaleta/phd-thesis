@@ -244,7 +244,7 @@ In this second scenario (Figure \ref{EPT}), any access to a logical page from wi
 
 The non-negligible performance impact introduced by the technology should always be taken into consideration for correctly designing infrastructures that rely heavily on virtualisation.%%%SAJJAD: "rely heavily" instead of "heavily rely"  (both are kinda correct, but this is better)
 
-A mechanism that allow the guest operating system to return control to the hypervisor asynchronously is referred to as \emph{hypercall}. A hypercall is the equivalent of a system call in traditional operating systems. 
+A mechanism that allows the guest operating system to return control to the hypervisor synchronously is referred to as \emph{hypercall}. A hypercall is the equivalent of a system call in traditional operating systems. 
 For instance, in order to invoke a system call on UNIX systems, the program in user space pushes the value of the system call in register EAX and then raises an interrupt. A sequence of instructions that explain the mechanism is shown in Listing \ref{syscall}
 
 \begin{lstlisting} [caption=A simple system call in traditional UNIX, label= syscall]
@@ -253,11 +253,11 @@ push eax
 int 80h
 \end{lstlisting}
 
-When interrupt 80h is raised the kernel interrupt handler will read the value of register EAX, which in turn jumps to the handler of the system call (in the example above it will be system call 1) and executes it with the parameters popped from the stack.
-The mechanism of hypercalls is very similar to the one of a system call. The main difference is that an interrupt different from 80h is raised. The interrupt number depends on the hypervisor's design.
-Hypercalls are commonly used in para-virtualised systems in which execution jumps directly from the application (Ring 3) to the hypervisor, which then passes control to the guest kernel (Ring 0). 
+When interrupt \emph{80h} is raised the kernel interrupt handler will read the value of register EAX, which in turn jumps to the handler of the system call (in the example above it will be system call 1) and executes it with the parameters popped from the stack.
+The mechanism of hypercalls is very similar to the one of a system call. The main difference is that an interrupt different from \emph{80h} is raised. The interrupt number depends on the hypervisor's design.
+Hypercalls are commonly used in \emph{para-virtualised} systems in which execution jumps directly from the application (Ring 3) to the hypervisor, which then passes control to the guest kernel (Ring 0). 
 
-However, hypercalls are also used in systems that are not hypervisor aware, whenever it is required to return control to the hypervisor explicitely. In fact, hypercalls are handled by the hypervisor asynchronously, which means that execution of the guest operating system will be paused until the handler terminates.
+However, hypercalls are also used in systems that are not hypervisor aware, whenever it is required to return control to the hypervisor explicitely. In fact, hypercalls are handled by the hypervisor synchronously, which means that execution of the guest operating system will be paused until the handler terminates.
 Despite the performance penalty of the hypercall mechanism, it revealed to be extremely useful in several cases  presented throughout this work.
 
 %This performance hit can be mitigated by the use of paravirtualized drivers; the combination has been called "hybrid virtualisation".[4]
@@ -314,3 +314,5 @@ We provide a realistic model of attack to operating system kernels and a strateg
 
 Still in the field of kernel security, a more general framework that enforces the execution of monitoring code within a virtualised operating system is described in Chapter \ref{hyperforce}. 
 It will be shown that the performance impact of our solutions is negligible and limited by the lower bound of the technology.
+
+The role of virtualisation technology to improve the security of web browsers and applications delivered on-demand is described in Chapter \ref{bubble}.

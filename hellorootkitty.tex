@@ -16,10 +16,10 @@ An even more subtle type of rootkits does not introduce new code at all, but rat
 Generally speaking, changing the control flow of the operating system kernel involves either changing the content of specific kernel objects such as existing fragments of code with new code or overwriting kernel function pointers.
 Several approaches that mitigate rootkits have been developed by security researchers who consider modified kernel-data structures an evidence of attack. Unfortunately, many of these approached are affected by substantial overhead~\cite{livewire,5} or miss a fundamental security requirement such as isolation\cite{hookscout}. 
 Isolation is needed to prevent a countermeasure in the target system from being disabled or crippled by a potential attack. When malicious code is running at the same privilege level as the operating system kernel, no isolation mechanism is in place and the attacker's code is capable of accessing arbitrary memory locations or hardware resources.
-The property that makes virtualization particularly attractive in the field of security research is that isolation is guaranteed by the current virtualization-enabled hardware. 
+The property that makes virtualisation particularly attractive in the field of security research is that isolation is guaranteed by the current virtualisation-enabled hardware. 
 
 Other countermeasures have been presented in which operating system kernels are protected against rootkits by executing only validated code code \cite{SecVisor,NICKLE,5}. But the aforementioned type of rootkit~\cite{Hund2009} that doesn't introduce new kernel code and basically re-uses fragments of validated code can bypass such countermeasures.
-In \cite{4} a countermeasure to detect changes of the kernel's control flow graph is presented; Anh et al. \cite{MAVMM} uses virtualization technology and emulation to perform malware analysis and \cite{HookSafe} protects kernel function pointers. Another interesting work is \cite{PoKer} which gives more attention to kernel rootkit profiling and reveals key aspects of the rootkit behavior by the analysis of compromised kernel objects. 
+In \cite{4} a countermeasure to detect changes of the kernel's control flow graph is presented; Anh et al. \cite{MAVMM} uses virtualisation technology and emulation to perform malware analysis and \cite{HookSafe} protects kernel function pointers. Another interesting work is \cite{PoKer} which gives more attention to kernel rootkit profiling and reveals key aspects of the rootkit behaviour by the analysis of compromised kernel objects. 
 Determining which kernel objects are modified by a rootkit not only provides an overview of the damage inflicted on the target but is also an important step to design and implement systems to detect and prevent rootkits.
 %FIXME add this to chapter 1 virtualization tech for non-virtualization specific purposes
 %A rising trend in security research is the use of virtualization technology for non-virtualization specific purposes~\cite{Gadaleta2009,QubesOS,Dewant2008,Criswell2007}. 
@@ -78,7 +78,7 @@ Knark & Add hooks to /proc file system \\
 \
 
 \subsection{Threat Model}
-In order to describe the environment in which our mitigation technique will operate, we make some assumptions about the scenario that an attacker might create. We assume that the operating system to be protected and which is being attacked is virtualized. This means that it runs on top of a hypervisor which executes at a higher privilege level than the operating system itself. Virtualization-enabled hardware guarantees isolation. Thus we assume that the guest operating system cannot access the memory or code of the hypervisor. 
+In order to describe the environment in which our mitigation technique will operate, we make some assumptions about the scenario that an attacker might create. We assume that the operating system to be protected and which is being attacked is virtualized. This means that it runs on top of a hypervisor which executes at a higher privilege level than the operating system itself. Virtualisation-enabled hardware guarantees isolation. Thus we assume that the guest operating system cannot access the memory or code of the hypervisor. 
 Moreover, no physical access to the host machine is granted.
 We have designed a system that detects the presence of a rootkit after it has been deployed, a fact that allows our model to include all possible ways of introducing a rootkit in a system. 
 
@@ -87,7 +87,7 @@ A rootkit can be introduced either by:
 \begin{itemize}
 \item A privileged user loading the rootkit as a Loadable Kernel Module
 \item A privileged user loading the rootkit by directly overwriting memory parts through the \texttt{/dev/} memory interfaces
-\item An unprivileged user exploiting a vulnerability in the kernel of the running operating system which will allow him inject and execute arbitrary code
+\item An unprivileged user exploiting a vulnerability in the kernel of the running operating system which will allow him to inject and execute arbitrary code
 \end{itemize}
 
 Finally, our system does not rely on secrecy. Therefore, our threat model includes the attacker being aware of the protection system.
@@ -131,7 +131,7 @@ As described in Chapter \ref{virt:tech}, in a virtualized environment the guest'
 
 Our countermeasure performs integrity checks every time the guest kernel writes to a control register (MOV\_CR* event) which is a privileged instruction of the type listed in Table \ref{virt:insntrap} that in-turn causes a \texttt{VMExit}. 
 Figure \ref{schema_tm_hyperv} depicts a high-level view of the approach described above. 
-Trapping this type of event is strategic because if virtual addressing is enabled (as in the case of modern commodity operating systems), the upper 20 bits of control register 3 (CR3) become the page directory base register (PDBR). This register is fundamental to locate the page directory and the page tables for the current task. Whenever the guest kernel schedules a new process, task usually referred to as \texttt{process switching}, the guest CR3 is modified. 
+Trapping this type of event is strategic because if virtual addressing is enabled (as in the case of modern commodity operating systems), the upper 20 bits of control register 3 (\emph{CR3}) become the page directory base register (PDBR). This register is fundamental to locate the page directory and the page tables for the current task. Whenever the guest kernel schedules a new process, a task usually referred to as \texttt{process switching}, the guest \emph{CR3} is modified. 
 The mechanism explained above is typical of the Intel IA-32 and higher architectures. Since other processor architectures are equipped with equivalent registers, most of our descriptions can be easily applied. 
 We found that performing integrity checks on the MOV\_CR* events is a convenient way to keep detection time and performance overhead to a minimum while guaranteeing a high level of security on protected objects. 
 Moreover, this choice revealed to be suitable for constraint relaxations that dramatically improve performance with a small cost in terms of detection time. More details of the aforementioned relaxation are provided further in this section. 
@@ -143,7 +143,7 @@ In the Linux kernel this does not occur often. Therefore trapping on this instru
 
 We developed a prototype of our countermeasure by extending BitVisor, a tiny Type-I hypervisor~\cite{1508311} which exploits Intel VT and AMD-V instruction sets. Our target system runs a Linux kernel with version 2.6.35. The trusted code has been implemented as a loadable kernel module for the Linux kernel \cite{linuxdevicedrivers}.
  
-What made BitVisor our choice to implement a proof-of-concept is not only the availability of the source code but also its memory address translation mechanism. In BitVisor, the guest operating system and the hypervisor share the same physical address space. Thus, the hypervisor does not need any complex mechanism to provide translations from guest to host virtual addresses, its size resulting dramatically reduced, when compared to other Type-I hypervisors.  
+What made BitVisor our choice to implement a \emph{proof-of-concept} is not only the availability of the source code but also its memory address translation mechanism. In BitVisor, the guest operating system and the hypervisor share the same physical address space. Hence, in this specific case, the hypervisor does not need any complex mechanism to provide translations from guest to host virtual addresses. As a consequence, its size results consistently reduced, when compared to other Type-I hypervisors.  
 The guest operating system will rely on its private guest page table to perform translations from virtual to physical addresses. The only drawback of this software architecture is that the hypervisor can not directly use the guest page table, otherwise the guest could access hypervisor's memory regions by mapping physical addresses to the page table. BitVisor uses shadow paging to verify page table entries right before they are used by the processor, to prevent such attacks.
  
 Although hypervisor's and guest's memory is shared on the same physical address space, isolation is still guaranteed by hiding hypervisor's memory regions from the guest via BIOS functions (function e820h) that fake that the memory region is reserved. 
@@ -177,7 +177,7 @@ In order to detect changes the hypervisor needs to access the contents at the gu
 The checksum is performed by a procedure which implements the MD5 algorithm\cite{md5rfc}. This cryptographic hash function provides the integrity guarantees needed for our purposes. While stronger hash functions exist, we believe that the security and collision rate provided by MD5 are strong enough to adequately protect our approach from mimicry attacks. 
 
 \textbf{Repairing phase}
-When the hypervisor detects that the signature of a protected object is different from the one computed the first time, two different behaviors are allowed: 
+When the hypervisor detects that the signature of a protected object is different from the one computed the first time, two different behaviours are allowed: 
 
 a) the system will report an ongoing attack or 
 
@@ -205,7 +205,7 @@ In order to evaluate whether our approach would detect a real rootkit we install
 \hline
 \bf{Component} & \bf{Description} \\ \hline
 Processor & Intel Core 2 Duo \\ \hline
-Virtualization & enabled Intel VT\\ \hline
+Virtualisation & enabled Intel VT\\ \hline
 Memory & 4GB \\ \hline
 NPT/EPT & not enabled \\ \hline
 OS & Linux 2.6.36  \\ \hline
@@ -261,7 +261,7 @@ Once our system was booted we loaded the rootkit in the running kernel. When the
 A list of synthetic kernel objects has been created to run a set of benchmarking utilities and evaluate the performance impact. The size of each of these objects has been chosen according to $slabtop$, a Linux utility which displays kernel slab cache information. Approximately 15,000 kernel objects are allocated during system's lifetime, 75\% of which smaller than 128 bytes. Moreover, these numbers are never exceeded in other detection systems.
 The trusted module has been instrumented to create a set of objects with the aforementioned characteristics. 
 
-Checking the integrity of 15,000 kernel objects in one solution and only then returning control to the guest operating system is not a practical solution and it is affected by a considerable overhead that dramatically penalises the usability of the overall system. Moreover this solution would not scale with the number of objects that can arbitrarily grow if the goal is to minimise the attack surface. Therefore at each \texttt{VMExit} we check each time a different subset of the object set. This parameter is configurable and its value depends on the priorities of each installation (performance versus detection time). 
+Checking the integrity of 15,000 kernel objects at a time, and only then returning control to the guest operating system is not a practical solution and it is affected by a considerable overhead that dramatically penalises the usability of the overall system. Moreover this solution would not scale with the number of objects that can arbitrarily grow if the goal is to minimise the attack surface. Therefore at each \texttt{VMExit} we check each time a different subset of the object set. This parameter is configurable and its value depends on the priorities of each installation (performance versus detection time). 
 In our proof of concept the hypervisor will check the integrity of 100 objects. of 128 bytes each every time a MOV\_CR event is trapped. Needless to say, 150 \texttt{VMExit} events must occur in order to check the integrity of the entire list.
 
 \begin{figure}[htbp] 
@@ -641,15 +641,15 @@ Both the implementations of SBCFI on top of the Xen hypervisor and the VMware Wo
 
 
 \subsection{Analysis and profiling systems} \label{profiling}
-Although not specifically designed to protect against rootkits, malware analysis can reveal important information about the way rootkits can compromise kernel data structures or how private information is stolen, allowing researchers to understand rootkit's behavior and design effective countermeasures against them. 
+Although not specifically designed to protect against rootkits, malware analysis can reveal important information about the way rootkits can compromise kernel data structures or how private information is stolen, allowing researchers to understand rootkit's behaviour and design effective countermeasures against them. 
 Most state-of-the-art analysis approaches share the same execution space of the malware that is being analysed. This can reduce the value and effectiveness of the analysis because some malware can detect the analysis platform and behave differently than in the real target system. 
 The isolation capability of virtualisation technology and the ability to save and restore the state of a guest operating system are offering new tools to shed light on the complex techniques of malware development. 
 General purpose hypervisors are usually not suitable for the purpose of analysing malware because they provide access to an emulated version of the hardware making the entire virtualisation platform visible to complex malicious software. 
-Recent malware like Storm and Conficker are known to detect they are running inside a virtual machine and behave diffently \cite{conficker, ecards}
+Recent malware like Storm and Conficker are known to detect they are running inside a virtual machine and behave differently \cite{conficker, ecards}
 
 
 \paragraph{MAVMM}
-MAVMM \cite{MAVMM} is a virtual machine monitor specifically designed for malware analysis. It can extract useful information for a complete profile of the investigated malware such as memory pages, system calls and accesses to disks and network devices. Contrarily to other hypervisors, MAVMM lets most hardware access requests go through without interception. This feature makes the entire platform invisible to the malware while still controlling accesses to the aformenentioned areas of the system. The analysis platform only intercepts guest execution at a few places, in order to protect its own integrity and log the guest’s behaviors for further analysis. Hardware supported Nested Page Tables (NPT) are used to protect its memory from being compromised by the guest, while an IOMMU unit is used to prevent any tamper by external hardware devices via DMA.
+MAVMM \cite{MAVMM} is a virtual machine monitor specifically designed for malware analysis. It can extract useful information for a complete profile of the investigated malware such as memory pages, system calls and accesses to disks and network devices. Contrarily to other hypervisors, MAVMM lets most hardware access requests go through without interception. This feature makes the entire platform invisible to the malware while still controlling accesses to the aformenentioned areas of the system. The analysis platform only intercepts guest execution at a few places, in order to protect its own integrity and log the guests' behaviours for further analysis. Hardware supported Nested Page Tables (NPT) are used to protect its memory from being compromised by the guest, while an IOMMU unit is used to prevent any tamper by external hardware devices via DMA.
 The execution trace of a guest program is recorded by single stepping its execution at each instruction. This is implemented by virtualising the TF flag that will raise a debugger exception, which will in turn be intercepted by MAVMM. 
 A log of executed system calls can give a good picture of that the malware under investigation is trying to do. MAVMM can record all system calls that a guest system invokes during its lifetime. Selective analysis of specific processes in the guest is also possible by notifying MAVMM each time a process switch occurs in the guest.
 An issue to deal with consists in choosing the safest place to store collected information for further analysis. Using the same disk device would expose collected data to be compromised by the analysed malware. Therefore, an USB flash drive or a separate disk unit controlled by different device drivers is an approach preferred by the authors.
@@ -657,12 +657,12 @@ An issue to deal with consists in choosing the safest place to store collected i
 
 
 \paragraph{Hookmap}
-Wang et al. \cite{hookmap} is an analysis tool against persistent rootkits based on the observation that rootkits try to hide their presence within the target kernel and they usually install kernel hooks on the corresponding kernel-side execution path invoked by the target program. Therefore given a security program, the authors argue that it is sufficient to analyse its kernel-side execution path to detect and investigate the rootkit behaviour. Linux utility programs like ls, ps and netstat have been analysed and their relative kernel hooks identified. HookMap found that there are 35 kernel hooks mapped to the ls utility, 85 kernel hooks for ps and so forth. As a result it is a systematic approach to uncover kernel hooks that can be potentially hijacked. By recording possible control-flow transfer instructions in the kernel-side execution paths HookMap is able to derive all related kernel hooks. For isolation purposed HookMap is based on QEMU and the target operating system is running within a virtual machine environment. 
+Wang et al. \cite{hookmap} is an analysis tool against persistent rootkits based on the observation that rootkits try to hide their presence within the target kernel and they usually install kernel hooks on the corresponding kernel-side execution path invoked by the target program. Therefore given a security program, the authors argue that it is sufficient to analyse its kernel-side execution path to detect and investigate the rootkit behaviour. Linux utility programs like \emph{ls}, \emph{ps} and \emph{netstat} have been analysed and their relative kernel hooks identified. HookMap found that there are 35 kernel hooks mapped to the \emph{ls} utility, 85 kernel hooks for \emph{ps} and so forth. As a result it is a systematic approach to uncover kernel hooks that can be potentially hijacked. By recording possible control-flow transfer instructions in the kernel-side execution paths HookMap is able to derive all related kernel hooks. For isolation purposed HookMap is based on QEMU and the target operating system is running within a virtual machine environment. 
 
 
 \paragraph{HookFinder}
 An approach that does not rely on any prior knowledge of hooking mechanisms is HookFinder \cite{hookfinder}. Therefore it represents a suitable tool to identify novel hooking mechanisms. To overcome the limitation of static analysis, that can be easily circumvented by malicious programs equipped with code obfuscation techniques, HookFinder relies on dynamic analysis. This means that malware programs are analysed while being executed within a controlled environment. A whole-system emulator is used for the purpose. All the information collected by the three main components of HookFinder, namely the impact engine, the hook detector and the semantics extractor, is used to derive how the rootkit implants the hook and how the hook is activated by the operating system. When the malware starts executing, the initial impacts, that is data written directly by the malicious code (and by external components, on behalf of malicious code) are added to a list to be monitored. Then HookFinder keeps track of the impacts propagating through the whole system. For instance, if it is observed that the instruction pointer is loaded with a monitored impact, and the execution jumps immediately into the malicious code, then a hook has been identified.
-Once a hook has been identified, HookFinder records into a trace the details about the propagated impacts in the system. By combining the information of the trace and operating system level semantics, HookFinder finally provides an intuitive graphical representation that can be used by malware analysts for a better understanding of the hooking mechanim under investigation.
+Once a hook has been identified, HookFinder records into a trace the details about the propagated impacts in the system. By combining the information of the trace and operating system level semantics, HookFinder finally provides an intuitive graphical representation that can be used by malware analysts for a better understanding of the hooking mechanism under investigation.
 
 
 
@@ -678,7 +678,7 @@ Since virtualisation technology does not support such a reverse lookup, an addre
 The countermeasure described in the previous sections can be integrated with the systems described above in order to perform integrity checking and detect illegal changes to those kernel objects collected by the aforementioned analysis tools.
 
 
-\section{Conclusion}\label{hr:conclusion}
+\section{Summary}\label{hr:conclusion}
 In this chapter we showed the effectiveness of the isolation between a hypervisor and a guest operating system and demonstrated how to build a non-bypassable invariance-enforcing framework that takes advantage of this feature.
 We realised our idea by designing and implementing a lightweight countermeasure that mitigates the problem of kernel-mode rootkits in common operating system kernels.
 
