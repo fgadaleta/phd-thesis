@@ -153,7 +153,7 @@ When the function processing the string stores the result back to memory, the ne
 \section{Implementation}\label{bub:implementation}
 In this section we discuss the implementation details of our countermeasure and the strategy we considered to tailor it on the Javascript engine of Mozilla Firefox web browser.
 An attacker performing a heap-spraying attack attempts to arrange a contiguous block of values of his choice in memory. This is required to build a sled that would not be interrupted by other data. To achieve this, a monolithic data structure is required.
-Javascript offers several possibilities to allocate blocks in memory. The types supported by Tracemonkey are numbers, objects and strings. An overview about how the Javascript engine represents Javascript objects in memory is given in \cite{jsobj}. 
+Javascript offers several possibilities to allocate blocks in memory. The types supported by the Javascript engine in our prototype are numbers, objects and strings. An overview about how the Javascript engine represents Javascript objects in memory is given in \cite{jsobj}. 
 
 %%Most objects have a prototype (which is another object) to inherit methods from, a parent to implement lexical scoping and properties 
 %%[FIXME: write something about how each of the object types are stored in memory and why they are not a threat!] 
@@ -162,7 +162,7 @@ The string type represents a threat and can be used to perform a potentially dan
 \begin{figure}[htbp]
 \begin{center}
 \includegraphics[scale=0.4]{images/jsstring.pdf}
-\caption{{Spidermonkey's JSString type is considered a threat for a heap-spraying attack since member \emph{chars} is a pointer to a vector of size ($length+1$)* \emph{sizeof(jschar)} }}
+\caption{{Javascript engine's JSString type is considered a threat for a heap-spraying attack since member \emph{chars} is a pointer to a vector of size ($length+1$)* \emph{sizeof(jschar)} }}
 \label{jsstring}
 \end{center}
 \end{figure}
@@ -172,7 +172,7 @@ We have instrumented the \texttt{JSString} data structure with the fields to sto
 \begin{figure}[htbp]
 \begin{center}
 \includegraphics[scale=0.5]{images/stringint}
-\caption{{Representation of the transformed string in memory: characters at random positions are changed to special interrupting values. The potential execution of the object's contents on the heap would be interrupted by the special value.}}
+\caption{{Representation of the transformed string in memory: characters at random positions are changed to special interrupting values. The potential execution of the object's contents on the heap would be interrupted by the special value (in blue).}}
 \label{stringrepr}
 \end{center}
 \end{figure}
@@ -518,7 +518,7 @@ Many countermeasures make use of randomness when protecting against attacks. Can
 %%Cowan:1998:SAA,Etoh:2000:PSS
 use a secret random number that is stored before an important memory location: if the random number has changed after some operations have been performed, then an attack has been detected. Memory-obfuscation countermeasures \cite{Bhatkar:2008:DSR,Cowan:2003:PPP} encrypt (usually with XOR) important memory locations or other information using random numbers.  Memory layout randomisers \cite{Bhatkar:2003:AOE,Bhatkar:2005:ETC,Xu:2003:TRR} 
 %%Team:20xx:DPP,
-randomize the layout of memory: by loading the stack and heap at random addresses and by placing random gaps between objects. Instruction set randomizers \cite{Barrantes:2003:RIS}
+randomise the layout of memory: by loading the stack and heap at random addresses and by placing random gaps between objects. Instruction set randomisers \cite{Barrantes:2003:RIS}
 %%,Kc:2003:CCI
 encrypt the instructions while in memory and will decrypt them before execution. While these approaches are often efficient, they rely on keeping memory locations secret. However, programs that contain buffer overflows could also contain ``buffer overreads'' (e.g. a string which is copied via \emph{strncpy} but not explicitly null-terminated could leak information) or other vulnerabilities like format string vulnerabilities, which allow attackers to print out memory locations. Such memory leaking vulnerabilities could allow attackers to bypass this type of countermeasure. Another drawback of these countermeasures is that, while they can be effective against remote attackers, they are easier to bypass locally, because attackers could attempt brute force attacks on the secrets.
  
@@ -575,6 +575,6 @@ Benchmarks show that this countermeasure has very limited impact, both in terms 
 
 In addition to the single-browser scenario we explain the case in which the target application is running in a virtualised operating system. We show how this countermeasure can be easily integrated with the virtualisation infrastructure and take advantage of hypervisor capabilities to protect other peers in a \emph{attack-once-protect-everywhere} fashion. 
 
-Moreover, for those environments with high security requirements and the need for business continuity, our approach can be considered to migrate sessions (in the case of a web browser) to a pristine operating system, upon notification of attack.
+%Moreover, for those environments with high security requirements and the need for business continuity, our approach can be considered to migrate sessions (in the case of a web browser) to a pristine operating system, upon notification of attack.
 
 Although we implemented a prototype for a widely adopted web browser, the concepts described in this chapter hold to many other scenarios like those in which interpreted language engines are embedded in user space applications and that are vulnerable to the same type of attack. 
