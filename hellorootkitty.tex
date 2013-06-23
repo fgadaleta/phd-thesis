@@ -478,7 +478,7 @@ A rootkit's main goal is to hide itself from administrators. Thus, any rootkit b
 A more probable attack might occur as a consequence of the relaxation explained in Section \ref{hr:evaluation}.
 Since only a subset of objects will be checked at any MOV\_CR event, a group of malicious processes in the guest might compromise the kernel and restore the original contents before the hypervisor performs the checking (Figure \ref{schema_hr_relax}).
 We consider such an attack hard to accomplish because, although the list of objects is checked until completion, in a deterministic fashion, the attacker has no knowledge of the position of the compromised object in the hypervisor's memory space nor within the list.
-An immediate mitigation for this kind of attack might be the randomization of the sequence in which blocks are checked.
+An immediate mitigation for this kind of attack might be the randomisation of the sequence in which blocks are checked.
 
 An analytical explanation of the scenario in which our method operates is explained by solving a simple combinatorial problem.
   
