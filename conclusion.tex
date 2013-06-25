@@ -1,8 +1,6 @@
-\chapter{Conclusion} \label{conclusion}
+\chapter{Conclusions} \label{conclusion}
 
 \epigraph{2in}{People fear death even more than pain. It's strange that they fear death. Life hurts a lot more than death. At the point of death, the pain is over. Yeah, I guess it is a friend.}{Jim Morrison}{}
-
-
 
 
 
@@ -20,6 +18,7 @@ Isolation allows the execution of the trusted code even after the operating syst
 Moreover, by setting most of the secure environment within the target system, our framework can operate with an almost native performance impact. 
 The countermeasures related to kernel attacks we propose in this work have been designed with performance and size of instrumentation code in mind. Despite the improvements in hardware supported virtualisation technology, we believe that another fundamental property that can impede a security measure's chances of competing in the marketplace is the complexity of integrating it into existing solutions.
 The hybrid approach - extensively used in the countermeasures presented in this work - of extending the target kernel with a trusted module that bridges communication to the hypervisor is revealed to be an effective strategy that can be considered even for those systems that cannot be modified for intellectual property reasons or because their source code is not available. Once the trusted module is no longer needed, it is unloaded from the target kernel in order to remove it from the attack surface and to reduce the chances of circumvention even further.
+Despite the recurrent mechanism provided by virtualisation technology by which the execution of the guest can be arbitrated by the hypervisor, finding a common pattern to the plethora of attacks that might compromise virtualised operating systems is challenging.
 
 Another area we focus on belongs to the field of web browser security, a topic discussed in the second part of the thesis.
 Owing to the recent transformation of the web browser into one of the most important elements in today's computer 

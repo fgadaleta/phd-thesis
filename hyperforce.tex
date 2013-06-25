@@ -27,7 +27,7 @@ Designing approaches in which guest operating systems cooperate with the hypervi
 Despite the number of publications in the field of kernel level security (\cite{rootkitdetection, rootkitdetection2, HookSafe}), the consistent presence of kernel-level malware is a sign of how complicated kernel protection really is. 
 Fortunately, virtualisation technology may facilitate the design of countermeasures that usually reveal to be effective. 
 
-The chief difference between these systems that operate from within the hypervisor, (\textit{in-hypervisor}), and those that operate from within the target system, (\textit{in-guest}), is that the latter are part of the system's attack surface. Researchers have already proposed various systems that use virtualisation primitives that all fall in this category ~\cite{Criswell2007, Dewant2008, copilot, NICKLE, qubesos}.
+The chief difference between these systems that operate within the hypervisor, (\textit{in-hypervisor}), and those that operate within the target system, (\textit{in-guest}), is that the latter are part of the system's attack surface. Researchers have already proposed various systems that use virtualisation primitives that all fall in this category ~\cite{Criswell2007, Dewant2008, copilot, NICKLE, qubesos}.
 %In general, current antivirus software that operates from within the same operating system to be protected, is one such system that could be deactivated or crippled by the attack itself. 
 
 \textit{In-hypervisor} security systems, in contrast, can utilize the isolation guarantees of virtualisation technology to make sure that they will be active regardless of the state of the system that they protect. 
@@ -47,7 +47,7 @@ This provides a great performance benefit for code that needs to access a high n
 %%We made a comparison between two monitoring approaches, one from hypervisor and one from the target system and provide details in Section \ref{casestudy}.
 
 \paragraph{Enforcement of Execution.}
-Given an arbitrary piece of security-critical code, HyperForce needs to ensure its execution at regular time intervals. A complete reliance for its execution on the virtualised operating system, could potentially allow a kernel-level attacker to intervene and inhibit the code's execution through the modification of the appropriate kernel-level data-structures. For instance, an attacker could locate the function pointer pointing to the security-critical code and overwrite it with a pointer towards their own code.
+Given an arbitrary piece of security-critical code, HyperForce needs to ensure its execution at regular time intervals. A complete reliance for its execution on the virtualised operating system, could potentially allow a kernel-level attacker to intervene and inhibit the code's execution through the modification of the appropriate kernel-level data-structures. For instance, an attacker could locate the function address pointing to the security-critical code and overwrite it with a pointer towards their own code.
 
 From a high-level view, HyperForce changes the execution flow of the guest kernel whenever the installed monitoring code has to be executed and restores the original execution flow upon code termination. 
 The advances of virtualisation technology allows one to implement this transition in a multitude of ways. Our decision has been influenced by the desire of minimizing the amount of instrumentation code in the hypervisor and of keeping performance overhead to a minimum.
@@ -56,10 +56,7 @@ In our framework, the security-critical code is encapsulated within a function t
 The key component of HyperForce is a virtual device, created by the hypervisor's infrastructure, that is detected and treated as a regular hardware device by the guest operating system.  
 %HyperForce then uses the infrastructure of the virtualization platform, specifically the Virtual Machine Monitor (VMM), to create a virtual device. 
 Virtual devices are supported by all modern hypervisors to simulate real hardware, such as sound-cards, graphic cards, storage units, etc. and to allow the execution of unmodified guest code, as it has been designed to run on bare metal. 
-Once the aforesaid virtual device has been created and loaded into the virtualised operating system, HyperForce registers the address of the memory location where the security-critical code has been stored to as an interrupt handler for the aforementioned virtual device. A schema is illustrated in Figure~\ref{hyperforce_schema}. 
-The interrupt handler, and consequently the security-critical code, will be called whenever the virtual device generates an Non-Maskable Interrupt (NMI). Hence the cooperation of the hypervisor and the trusted module is based on this call-and-respond mechanism.
-Since the virtual device is fully controlled by the hypervisor, it is the hypervisor that decides when interrupts must be generated and not the virtualised operating system. Due to this fact, the eventually compromised guest kernel has no possibility to anticipate or delay the execution of the security-critical code. The logic behind is hidden from it through the isolation mechanism guaranteed by virtualisation-enabled processors.  
-This fact stops any attackers' efforts to evade detection by mimicking a non-compromised operating system just before the execution of the critical-code and restoring their malicious activities after it.
+Once the aforesaid virtual device has been created and loaded into the virtualised operating system, HyperForce registers the address of the memory location where the security-critical code has been stored to as an interrupt handler for the aforementioned virtual device. A schema is illustrated in Figure~\ref{hyperforce_schema} in which the additional virtual device within the system emulator QEMU \cite{qemu} and the trusted module within the guest are highlighted. 
 
 \begin{figure} 
 \begin{center}
@@ -68,6 +65,11 @@ This fact stops any attackers' efforts to evade detection by mimicking a non-com
 \label{hyperforce_schema}
 \end{center}
 \end{figure}
+
+ 
+The interrupt handler, and consequently the security-critical code, will be called whenever the virtual device generates an Non-Maskable Interrupt (NMI). Hence the cooperation of the hypervisor and the trusted module is based on this call-and-respond mechanism.
+Since the virtual device is fully controlled by the hypervisor, it is the hypervisor that decides when interrupts must be generated and not the virtualised operating system. Due to this fact, the eventually compromised guest kernel has no possibility to anticipate or delay the execution of the security-critical code. The logic behind is hidden from it through the isolation mechanism guaranteed by virtualisation-enabled processors.  
+This fact stops any attackers' efforts to evade detection by mimicking a non-compromised operating system just before the execution of the critical-code and restoring their malicious activities after it.
 
 \paragraph{Integrity of Code.}
 %In the previous paragraph we described the loading of security-critical code within the hypervisor and the use of virtual devices to ensure the execution of that code.
@@ -81,7 +83,7 @@ Most of the performance penalty is due to the task of trapping an access violati
 
 Another way to circumvent the protection mechanism in place consists in compromising the Interrupt Descriptor Table (IDT), where pointers to interrupt handlers are stored. When an exploitable kernel-level vulnerability is found, it can be relatively easy to compromise the IDT. 
 Therefore HyperForce write-protects the memory page holding the Interrupt Descriptor Table (IDT) of the protected guest. Lastly, HyperForce protects the Interrupt Descriptor Table Register (IDTR) that contains the address of the IDT, by checking its integrity at regular intervals. The aforementioned protection will prevent any attempt to use an Interrupt Descriptor Table that is different from the one observed within the untampered system.
-The task of protecting the IDTR is a straightforward since the IDTR is not supposed to change during operating system lifetime. A schema of the selection of the interrupt gate via the IDTR is showed in Figure \ref{idtr}.
+The task of protecting the IDTR is straightforward since the IDTR is not supposed to change during operating system lifetime. A schema of the selection of the interrupt gate via the IDTR is showed in Figure \ref{idtr}.
 
 %In order to ensure that an attacker cannot avoid the execution of the interrupt handler containing the security-critical code, HyperForce also write-protects the memory page holding the Interrupt Descriptor Table (IDT) of the protected guest. Lastly, HyperForce protects the Interrupt Descriptor Table Register (IDTR) that contains the address of the IDT, as a regular invariant critical kernel object.
 
@@ -183,13 +185,16 @@ HF		& 5.71   (+4.3\%)      &	32.88  (+2.5\%)    \\
 \end{tabular}
 }
 \caption{Macro benchmarks (\textit{in-host} OS and \textit{in-guest} OS) evaluating the integrity checking method implemented with and without HyperForce}
+\vspace{0.3cm}
 \label{macrobenchmarks}
 \end{table}
+
+
+
 
 %
 \begin{comment}
 \begin{table}[htdp]
-\caption{Macro benchmarks (iperf -P 50 -t 300) of HyperForce (in-guest aproach) against in-hypervisor approach, within host machine}
 \begin{center}
 \begin{tabular}{| l | l | l | l |}
 \hline
@@ -199,6 +204,8 @@ in-hyper      & 6.36         &	-               \\
 HF		& 6.29         &	+1.1\%    \\
 \hline
 \end{tabular}
+\caption{Macro benchmarks (iperf -P 50 -t 300) of HyperForce (in-guest aproach) against in-hypervisor approach, within host machine}
+\vspace{0.3cm}
 \end{center}
 %\label{hostmacro}
 \end{table}%
@@ -206,7 +213,6 @@ HF		& 6.29         &	+1.1\%    \\
 
 
 \begin{table}[htdp]
-\caption{Macro benchmarks of in-hypervisor approach and HyperForce, measured from the guest machine, compared to native KVM}
 \begin{center}
 \begin{tabular}{| l | l | l | l |}
 \hline
@@ -218,6 +224,8 @@ in-hyper      & 5.26   (+12\%)      &	33.73  (+5\%)       \\
 HF		& 5.71   (+4.3\%)      &	32.88  (+2.5\%)    \\
 \hline
 \end{tabular}
+\caption{Macro benchmarks of in-hypervisor approach and HyperForce, measured from the guest machine, compared to native KVM}
+\vspace{0.3cm}
 \end{center}
 %\label{guestmacro}
 \end{table}%
@@ -246,7 +254,6 @@ The picture in the guest machine shows a similar trend in which HyperForce outpe
 
 
 \begin{table}[htdp]
-\caption{Overhead of kernel integrity checking using the HyperForce framework (HF) is measured against in-hypervisor alternative with LMbench micro-benchmarks within the host machine. Operations are measured in microseconds.}
 \begin{center}
 \begin{tabular}{| l | c | c | c | c | }
 \hline
@@ -258,13 +265,13 @@ HF		& 1.48    &	4950	&	1.46		& 101.7 \\
 speedup         &+26\% & +19\% & +7\% & +11\% \\
 \hline
 \end{tabular}
+\caption{Overhead of kernel integrity checking using the HyperForce framework (HF) is measured against in-hypervisor alternative with LMbench micro-benchmarks within the host machine. Operations are measured in microseconds.}
+\vspace{0.3cm}
 \end{center}
 \label{hostmicro}
 \end{table}%
 
 \begin{table}[htdp]
-\caption{Overhead of HyperForce is measured against in-hypervisor approach with
-LMbench micro-benchmarks within the guest machine. Operations are measured in microseconds.}
 \begin{center}
 \begin{tabular}{| l | c | c | c | c | c | c | c | c |  }
 \hline
@@ -287,6 +294,9 @@ HF 		& 2.60 & 1788 & 3984 & 5.00 \\
 \hline
 
 \end{tabular}
+\caption{Overhead of HyperForce is measured against in-hypervisor approach with
+LMbench micro-benchmarks within the guest machine. Operations are measured in microseconds.}
+\vspace{0.3cm}
 \end{center}
 \label{guestmicro}
 \end{table}%

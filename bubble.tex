@@ -11,7 +11,7 @@ We are confident that hypervisor-awareness can lead to stronger security measure
 \section{Motivation}
 One of the most considerable actors in today's computer use is the web browser. Companies like Google\texttrademark and Yahoo are evidence of this trend since they offer full-fledged software inside the browser. 
 This has resulted in a very rich environment that is being used by web programmers too. Unfortunately, an immediate side effect of this tendency is the growth of security problems like cross site scripting and cross site request forgeries (CSRF) \cite{xss,csrf,csrf2}. 
-What's more, the browser is often written in unsafe languages. As in any other software of this type, the web browser is exposed to the various vulnerabilities that can affect programs written in such languages, such as buffer overflows, dangling pointer references, format string vulnerabilities, memory corruption, etc.
+Moreover, the browser is often written in unsafe languages. As in any other software of this type, the web browser is exposed to the various vulnerabilities that can affect programs written in such languages, such as buffer overflows, dangling pointer references, format string vulnerabilities, memory corruption, etc.
 One of the most often exploited type of C/C++ vulnerability of the last decade has been the stack-based buffer overflow \cite{dalton2008real}. Countermeasures like StackGuard \cite{Wagle:2003:SGS}, ProPolice \cite{Etoh:2000:PSS} and other tools like those explained in \cite{dep, wilander2003comparison} that protect areas of potential interest for attackers from being modified, have made buffer overflows harder to exploit. 
 As a consequence, in the constantly animated attacker-researcher world, attackers have focussed on other types of vulnerabilities, targeting the heap rather than the stack. 
 This has massively increased the number of heap-based buffer overflows and memory corruption attacks.
@@ -31,11 +31,6 @@ In the first part of this chapter we focus on modern web browsers and describe a
 
 The rest of the chapter is organised as follows: Section \ref{bub:problem} discusses the problem of heap-based buffer overflows and heap-spraying in more detail. Section \ref{bub:approach} discusses our approach while in Section \ref{bub:implementation} we describe our prototype implementation. We evaluate our approach in Section \ref{bub:eval}. 
 A discussion about the integration within hypervisor-aware systems is given in Section \ref{bub:integration}. We compare our approach to related work in Section \ref{bub:related}. Section \ref{bub:conclusion} concludes.
-%Web browsers that support a safe language such as Javascript are becoming a platform of great interest for security attacks. One such attack is a heap-spraying attack: a new kind of attack that combines the notoriously hard to reliably exploit heap-based buffer overflow with the use of an in-browser scripting language for improved reliability. A typical heap-spraying attack allocates a high number of objects containing the attacker's code on the heap, dramatically increasing the probability that the contents of one of these objects is executed.
-%In this paper we present a lightweight approach that makes heap-spraying attacks in Javascript significantly harder. Our prototype, which is implemented in Firefox, has a negligible performance and memory overhead while effectively protecting against heap-spraying attacks.
-%Web browsing has become an very important part of today's computer use. The most often exploited type of C vulnerability is the stack-based buffer overflow. In this attack, an attacker exploits a buffer overflow in an array, writing past the bounds of the memory allocated for the array, overwriting subsequent memory locations. If the attackers are able to overwrite the return address or a different type of code pointer (such as a function pointer), they can gain control over the program's execution flow, possibly redirecting it to their injected code. While stack-based buffer overflows are still an important vulnerability in C programs, they have become harder to exploit due to the application of many different countermeasures such as StackGuard \cite{Wagle:2003:SGS}, ProPolice \cite{Etoh:2000:PSS}, ASLR \cite{Bhatkar:2003:AOE}, etc. The goal of these countermeasures is to protect areas of potential interest for attackers from being modified or to prevent attackers from guessing where their injected code is located, thus preventing them from directing control flow to that location after they have overwritten such an area of potential interest. Attackers have subsequently focussed on different types of vulnerabilities. One important type of vulnerability is the heap-based buffer overflow. However, due to the changing nature of the heap, these vulnerabilities are notoriously hard to exploit. Especially in browsers, where the heap can look completely different depending on which and how many sites the user has visited, it is hard for an attacker to figure out where in the heap space his overflow has occurred. This makes it hard for attackers to figure out where their injected code is located. The application of countermeasures like ASLR (Address Space Layout Randomization) on the heap has made it even harder to reliably exploit these vulnerabilities. ASLR is a technique by which positions of key data areas in a process's address space, such as the heap, the stack or libraries, are arranged at random positions in memory. All attacks based on the knowledge of target addresses (e.g. \emph{return-to-libc} attacks in the case of randomized libraries or attacks that execute injected \emph{shellcode} in the case of a randomized heap/stack) may fail if the attacker cannot guess the exact target address. Recently a new attack emerged that combines the rich environment found in the browser to facilitate exploits of C vulnerabilities, sometimes resulting in the successful bypass of countermeasures like ASLR that are supposed to protect against these type of vulnerabilities. Heap-spraying attacks use the Javascript engine in the browser to replicate the code they want executed a large amount of times inside the heap memory, dramatically increasing the possibility that a particular memory location in the heap will contain their code. Several examples of heap-spraying attacks have already affected widely used web browsers like Safari, Internet Explorer and Mozilla Firefox.\cite{iespray,safarispray,ffspray}.
-% ADD LATER to implementation %
-%This paper presents an approach that protects against heap-spraying attacks based on the observation that the attack relies on the fact that the heap will contain homogenous data inserted by the attacker. By introducing diversity in the heap at random locations and by modifying the way that Javascript stores data on the heap at these locations, we can build an effective protection against these exploits at low cost. We implemented this countermeasure in the Javascript engine of Firefox, Tracemonkey\footnote{In the remainder of the paper we will refer to Spidermonkey, since Tracemonkey is based on the former engine to which it adds native-code compilation, resulting in a massive speed increase in loops and repeated code.}The overhead of our approach is very low,  measuring the overhead of the countermeasure on a number of popular websites which use a significant amount of Javascript, showed that our approach has an average overhead of 5\%.
 
 \section{Problem description} \label{bub:problem}
 \paragraph{Heap-based buffer overflows}
@@ -237,7 +232,9 @@ youtube.com 	&      12953 	&  	13585    	& +4.9\%\\
 \hline
 \end{tabular}
 \end{center}
+\vspace{-0.3cm}
 \caption{{ Performance overhead of countermeasure in action on 8 popular memory demanding web sites.}}
+\vspace{0.3cm}
 \label{perfpopular}
 \end{table*} 
 
@@ -278,6 +275,7 @@ math &         	&      	 63.2 +/- 1.0\%    	& 	63.6 +/- 1.7\%  	&\bf{+0.62\%}\\
 \end{tabular}
 \end{center}
 \caption{{ Microbenchmarks performed by SunSpider Javascript Benchmark Suite}}
+\vspace{0.3cm}
 \label{sunbench}
 \end{table*}
 
@@ -302,6 +300,7 @@ Text parsing     	       &  	1321      &     1298 	& 	+2.0\%\\
 \end{tabular}
 \end{center}
 \caption{{ Peacekeeper Javascript Benchmarks results (the higher the better).}}
+\vspace{0.3cm}
 \label{peacekeeper}
 \end{table*} 
 
@@ -324,6 +323,7 @@ Splay     	&      510 	&  	501		& 	+1.8\%\\
 \end{tabular}
 \end{center}
 \caption{{ V8 Benchmark Suite results (the higher the better).}}
+\vspace{0.3cm}
 \label{v8}
 \end{table*} 
 
@@ -371,6 +371,7 @@ Peacekeeper &    148     &    157     &  +6.5\% \\
 \end{tabular}
 \end{center}
 \caption{{ Memory overhead of countermeasure in action on three Javascript benchmarks suites.}}
+\vspace{0.3cm}
 \label{memory}
 \end{table}
 
@@ -398,6 +399,7 @@ The probability of hitting one special interruption byte in a chunk of 25 bytes 
 \begin{center}
 \includegraphics[scale=0.5]{images/bubble_det_codesize}
 \caption{{Probability of detection versus size of injected code.}}
+\vspace{0.3cm}
 \label{det_codesize}
 \end{center}
 \end{figure}
@@ -415,6 +417,7 @@ Another variable that not only determines the level of security but also the ove
 \begin{center}
 \includegraphics[scale=0.5]{images/bubble_det_intrate}
 \caption{{Probability of detection compared to detection rates for injected code of several sizes}}
+\vspace{0.3cm}
 \label{det_intrate}
 \end{center}
 \end{figure}
@@ -428,7 +431,6 @@ The assumption of independency between chunks and special interruption bytes pro
 
 As already mentioned, the reliability of heap-spraying attacks is due to the usage of code sleds that drive the Instruction Pointer from inaccurate memory locations to the shellcode. The use of NOP sleds dramatically increases the size of injected code. Therefore, although we consider these attacks feasible from a probabilistic point of view, they are quite hard to be realised in practice with reasonable reliability.
 
-\newpage
 
 
 \section{Hypervisor integration}\label{bub:integration}
@@ -436,7 +438,7 @@ Despite the numerous possibilities that virtualisation technology can offer to t
 
 A virtual machine for each web browser is deployed in order to guarantee mobility, consistency of view and security. Mobility allows the user to access his own private desktop from anywhere, using any device and maintaining a consistent look and feel among them. It should be clear that, in such an environment, security by isolation is achieved by design. In fact, all the virtual machines are running on top of a hypervisor executing on virtualisation-enabled hardware.
 
-However, considering an application more secure and shielded just because it is running within a virtual machine is a type of misunderstanding that is becoming more and more common, specially in the industry \cite{virtoverkill}. Specifically to the environment we described, isolating virtual machines would not prevent attacks to the single web browser. Therefore, if a web browser loads a malicious page where a heap-spraying attack has been implemented, the chances of successful attack are equivalent to those of the browser running within a physical machine. 
+However, considering an application more secure and shielded just because it is running within a virtual machine is a type of misunderstanding that is becoming more and more common, specially in the industry \cite{virtoverkill}. Specifically to the environment we described, isolating virtual machines would not prevent attacks to the single web browser. Executing an instance of the web browser within a virtual machine does not make it immune to common attacks. Therefore, if that web browser loads a malicious page where a heap-spraying attack has been implemented, the chances of successful attack are equivalent to those of a browser running within a physical machine. 
 
 However, if a countermeasure like the one described before is in place, precious information about the attack can be collected and used to reduce the risk of attacks to the rest of the infrastructure. The other virtual machines running on top of the same hypervisor can be informed of the malicious address that caused the attack. 
 
@@ -447,6 +449,7 @@ A schema of such an environment is provided in Figure \ref{virtualdesktop}.
 \begin{center}
 \includegraphics[scale=0.55]{images/virtualDesktop.pdf}
 \caption{{Schema of hypervisor integration: upon loading malicious content from bad.com (1) and local detection of  heap-based attack, the guest notifies the hypervisor (2) sending the malicious URL that caused the attack. The hypervisor will deliver this information to all virtual machines running on top (3) or, alternatively will update a blacklist in its private space.}}
+\vspace{0.3cm}
 \label{virtualdesktop}
 \end{center}
 \end{figure}
@@ -494,7 +497,6 @@ Regardless the choice of strategy, further access to malicious network address w
 %We argue that browser session migration strategies like the one described in \cite{browsermigration} can be easily integrated within the Hyperforce framework. 
 
 
-\clearpage
 \section{Related work}\label{bub:related}
 In this section we provide some of the most effective countermeasures related to web browser security developed so far. Several countermeasures, like the ones described in Section \ref{cmnozzle}, have been designed and implemented to specifically protect against heap-spraying attacks. Others have been designed to prevent memory corruption in general, like those in Section \ref{sul}. 
 Two architectures that take advantage of virtualisation technology to provide coarse grained isolation of user applications are described in Section \ref{virtbased}. 
@@ -541,7 +543,7 @@ Control-flow integrity \cite{Abadi:2005:CFI} determines a program's control flow
 A work that borrows the concepts of virtualisation technology and applies them to the development of secure web browsers is provided in \cite{virtualbrowser}. Virtual Browser is a browser-level virtualised environment that executes third party Javascript code in isolation from the rest of the system, namely other components of the web browser itself and the host system. The isolated components can still communicate with each other through data flows that have been carefully examined with security in mind. 
 The idea of Virtual Browser is very similar to that of virtual machines. It provides its own HTML and CSS parsers and a Javascript interpreter. Therefore, untrusted Javascript code is parsed and executed within the isolated environment, preventing the exploitation of bugs in the main Javascript interpreter of the browser.
 For the same reason, trusted Javascript can execute within the native Javascript engine, improving the overall performance of the countermeasure. The performance overhead is comparable to the Microsoft Web Sandbox, but the degree of security is higher and a more complete Javascript language is supported.
-An important feature that makes Virtual Browser readily deployable is that it is written in a language that is supported by the native browser (a Javascript implementation is provided). Therefore, no modification to the browser codebase is required.
+An important feature that makes Virtual Browser readily deployable is that it is written in a language that is supported by the native browser (a Javascript implementation is provided). Therefore, no modification to the browser codebase is required. Virtual Browser provides isolation of the Javascript interpreter, leaving all other means to attack web browsers unprotected. Although a direct comparison with Web Sandbox shows that Virtual Browser outperforms it in some cases, the overhead compared to web browsers running natively is not negligible. 
 
 
 

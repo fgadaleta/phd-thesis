@@ -146,15 +146,6 @@ As mentioned before, when the guest operating system is executing and the proces
 
 It should be clear that in a virtualisation setting, the fault handler is represented by code running in hypervisor space. Therefore the hypervisor is responsible for the execution of additional code on behalf of the guest and for updating the guest's processor state.
 
-\begin{figure*}[htbp] 
-\begin{center}
-\includegraphics[scale=0.27]{images/intel_latency}
-\caption{{Latency of VM exit, VMREAD, VMRESUME instructions across Intel processors}}
-\label{intel_latency}
-\end{center}
-\end{figure*}
-
-
 A list of instructions that cause VM exit when the processor is in \emph{VMX non-root} mode is reported in Table \ref{virt:insntrap}. Other events that are handled with the same trapping mechanism are exceptions, external interrupts (otherwise served by the guest Interrupt Descriptor Table), non-maskable (NMI) and system-management (SMI) interrupts and task switches. For a more detailed description about how to handle VM exits and other architecture specific features of virtualisation-enabled processors we encourage the reader to examine the architecture developer's manual, usually provided by the hardware vendor.
 
 \begin{table}[t]
@@ -224,7 +215,8 @@ In a standalone operating system, the hardware Memory Management Unit (MMU) is u
 This mechanism holds in a virtualised environment, but an additional layer is necessary in order to map a PPA to a machine page address (MPA). The two-level translation mechanism is illustrated in Figure \ref{shadow}.%%%SAJJAD: By "hold" you mean "takes place"?
 
 
-Prior to the advent of hardware-supported virtualisation, the hypervisor had to maintain $PPA \rightarrow MPA$ mappings and had to store $LPA \rightarrow MPA$ mappings in \emph{shadow page tables}. Faster lookups could be achieved by caching $LPA \rightarrow MPA$ mappings into the TLB. Unfortunately, whenever the guest re-mapped its memory addresses, the hypervisor had to keep the shadow pages synchronised. This task was recognised as the factor responsible for most of the performance impact of the technology.%%%SAJJAD: I added "the factor"
+Prior to the advent of hardware-supported virtualisation, the hypervisor had to maintain $PPA \rightarrow MPA$ mappings and had to store $LPA \rightarrow MPA$ mappings in \emph{shadow page tables}\footnote{Shadow paging is a memory protection mechanism performed by the hypervisor to isolate guests' memory space and keep guest memory accesses updated. Specifically the hypervisor keeps the real $LPA \rightarrow MPA$ mapping updated in order to maintain a representation of the page tables that the guest thinks it is using. The update occurs whenever a page faut is generated within the guest and handled by the hypervisor. Due to the usually high number of page faults, the aforementioned mechanism is affected by consistent overhead.}. Faster lookups could be achieved by caching $LPA \rightarrow MPA$ mappings into the TLB. Unfortunately, whenever the guest re-mapped its memory addresses, the hypervisor had to keep the shadow pages synchronised. This task was recognised as the factor responsible for most of the performance impact of the technology.%%%SAJJAD: I added "the factor"
+
 
 
 
@@ -273,7 +265,6 @@ It goes without saying that it is the reduction of these types of costs that tri
 
 The natural course of hardware development and the popularity of virtualisation technology promoted the replacement of traditional processors with new hardware. Today, virtualisation-supported processors are off-the-shelf components regularly installed on general purpose computers. Therefore, virtualisation-friendly solutions meet their requirements with much more ease than in the past when they could be deployed only when accompanied with special hardware.
 
-
 Despite the benefits described above, which might be interpreted more as business-related advantages, a feature that is rendering virtualisation technology even more attractive from a more technical view point, is the inherent isolation of virtual machines from themselves and the hypervisor. The need for executing several guests at the same time and preventing any type of interference are requirements that cannot be fulfilled without isolation.
 
 As explained in Section \ref{virt:tech}, it should be clear that hardware-support is not only beneficial to the overall performance impact\footnote{The benefit becomes consistent when hardware-supported virtualisation is compared to software emulation. But compared to a native system, a virtualisation solution continues to have non-negligible impact.} but also to security. In a hardware-assisted virtualisation framework it is substantially hard - sometimes not practically feasible - to break the isolation constraint from within a virtual machine. 
@@ -297,6 +288,16 @@ Last but not least, virtualisation strategies that can fully exploit the hardwar
 %%%SAJJAD "consists in" replaced with "involves"
 
 %Bottleneck of the entire system in terms of performance and security is shifted to a higher privilege level (hypervisor) (if buggy hypervisor, the entire system (not only the hypervisor but also all virtual machines running on top) is at risk) \\
+
+\begin{figure*}[!htbp] 
+\begin{center}
+\includegraphics[scale=0.27]{images/intel_latency}
+\caption{{Latency of VM exit, VMREAD, VMRESUME instructions across Intel processors}}
+\vspace{0.1cm}
+\label{intel_latency}
+\end{center}
+\end{figure*}
+
 
 Despite the performance improvements claimed by works like \cite{rearch, avoidvmexit} and by Intel itself, as shown in Figure \ref{intel_latency}, the gap of the performance between native and virtualised operating systems remains consistent.  
 It is clear that the performance impact is mainly caused by the latency of virtualisation-based instructions, which is mainly architecture dependent. The frequency of trapped events from the guest to the hypervisor is also important and it has been measured to have a considerable impact on the overall performance of a virtualised system, specially affecting Input/Output intensive tasks. In \cite{avoidvmexit}, this frequency has been minimised using software techniques. In the same work it is claimed that the overall transition costs are reduced up to 50\%. However, the aforementioned latency seems to be improvable up to a lower bound imposed by the technology. %%%SAJJAD: check first sentence

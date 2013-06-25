@@ -45,10 +45,10 @@ In this section we describe common rootkit technology and we also present the mo
 Rootkits are pieces of software that attackers deploy in order to hide their presence from a system. Rootkits can be classified according to the target and consequently to the privilege-level which they require to operate. The two most common rootkit classes are: a) user-mode and b) kernel-mode.
 
 User-mode rootkits run in the user-space of a system without the need of tampering with the kernel. In the Microsoft Windows platform, user-mode rootkits commonly modify the loaded copies of the Dynamic Link Libraries (DLL) that each application loads in its address space~\cite{SymantecRootkits}. 
-More specifically, an attacker can modify function pointers of specific Windows APIs and execute their own code before and/or after the execution of the legitimate API call. In Linux, user-mode rootkits hide themselves mainly by changing standard linux utilities, such as \texttt{ps} and \texttt{ls}. Depending on the privileges of the executing user, the rootkit can either modify the default executables or modify the user's profile in a way that their executables will be called instead of the system ones (e.g.,by changing the \texttt{PATH} variable in the Bash shell).
+More specifically, an attacker can modify function pointers of specific Windows APIs and execute their own code before and/or after the execution of the legitimate API call. In Linux, user-mode rootkits hide themselves mainly by changing standard Linux utilities, such as \texttt{ps} and \texttt{ls}. Depending on the privileges of the executing user, the rootkit can either modify the default executables or modify the user's profile in a way that their executables will be called instead of the system ones (e.g.,by changing the \texttt{PATH} variable in the Bash shell).
 
 Kernel-mode rootkits run in the kernel-space of an operating system and are thus much stronger and much more capable. The downside, from an attacker's perspective, is that the user must have enough privileges to introduce new code in the kernel-space of each operating system. In Windows, kernel-mode rootkits are loaded as kernel extensions or device-drivers and target locations such as the \texttt{call gate} for interrupt handling or the System Service Descriptor Table (SSDT).
-The rootkits change these addresses so that their code can execute before specific system calls. This capability is usually referred to as \texttt{hooking}. In Linux, rootkits can be loaded either as a Loadable Kernel Module (LKM), the equivalent of Windows device-drivers, or written directly in the memory of the kernel through device files that provide access to system's memory such as \texttt{/dev/mem} and \texttt{/dev/kmem}~\cite{kmemRootkit}. These rootkits target kernel-data structures in the same way that their Windows-counterparts do. Although we focus on Linux kernel-mode rootkits, the concepts we introduce here apply equally well to Windows kernel-mode rootkits.
+The rootkits change these addresses so that their code can be executed before specific system calls. This capability is usually referred to as \texttt{hooking}. In Linux, rootkits can be loaded either as a Loadable Kernel Module (LKM), the equivalent of Windows device-drivers, or written directly in the memory of the kernel through device files that provide access to system's memory such as \texttt{/dev/mem} and \texttt{/dev/kmem}~\cite{kmemRootkit}. These rootkits target kernel-data structures in the same way that their Windows-counterparts do. Although we focus on Linux kernel-mode rootkits, the concepts we introduce here apply equally well to Windows kernel-mode rootkits.
 An empirical observation is that kernel-mode rootkits need to corrupt specific kernel objects, in order to execute their own code and add malicious functionality to the victim kernel.
 Studies of common rootkits \cite{packetstorm,4} show that most dangerous and insidious rootkits change function pointers in the system call table, interrupt descriptor table or in the file system, to point to malicious code. The attack is triggered by calling the relative system call from user space or by handling an exception or, in general, by calling the function whose function pointer has been compromised.
 We report a list of rootkits which compromise the target kernel in Table~\ref{listrootkits}. 
@@ -70,12 +70,13 @@ Knark & Add hooks to /proc file system \\
 \hline
 \end{tabular}
 }
-
 \end{center}
-\caption{Hooking methods of common linux rootkits}
+\vspace{-0.3cm}
+\caption{Hooking methods of common Linux rootkits}
+\vspace{0.3cm}
 \label{listrootkits}
 \end{table}
-\
+
 
 \subsection{Threat Model}
 In order to describe the environment in which our mitigation technique will operate, we make some assumptions about the scenario that an attacker might create. We assume that the operating system to be protected and which is being attacked is virtualised. This means that it runs on top of a hypervisor which executes at a higher privilege level than the operating system itself. Virtualisation-enabled hardware guarantees isolation. Thus we assume that the guest operating system cannot access the memory or code of the hypervisor. 
@@ -98,8 +99,10 @@ In this section we describe the architectural details of the countermeasure and 
 By studying the most common rootkits and their hooking techniques one can realize that they share at least one common characteristic. In order to achieve execution of their malicious code, rootkits overwrite locations in kernel memory which are used to dictate, at some point, the control-flow inside the kernel. 
 Most of these locations are very specific (see Table~\ref{listrootkits}) and their values are normally invariant, i.e. they don't change over the normal execution of the kernel. Since these objects are normally invariant, any sign of variance can be used to detect the presence of rootkits. We use the terminology of \texttt{critical kernel objects} to name objects that are essential to change the control-flow of the kernel and thus likely to be used by an attacker. 
 
-Given a list of invariant critical kernel objects, our approach consists of periodically checking them for signs of variance. When our countermeasure detects that the contents of an invariant critical kernel object have been modified, it will report an ongoing attack. 
-Considering the modification of invariant critical kernel objects as evidence of rootkit attack is not entirely novel to the literature. These types of objects have been identified in several contributions, such as \cite{HookSafe,6,7,8}. The methods to detect invariance differ depending on the type of critical kernel object and are summarized in the following list:
+Given a list of invariant critical kernel objects, our approach consists of periodically checking them for signs of variance. When our countermeasure detects that the contents of an invariant critical kernel object have been modified, it will report an ongoing attack. Such a strategy might be affected by false positives, when variable objects are erroneously considered invariants.   
+Considering the modification of invariant critical kernel objects as evidence of rootkit attack is not entirely novel to the literature. These types of objects have been identified in several contributions, such as \cite{HookSafe,6,7,8}. The need for special hardware and the performance overhead of such contributions motivated our research in this area. 
+
+The methods to detect invariance differ depending on the type of critical kernel object and are summarized in the following list:
 
 \begin{enumerate}
 \item Static kernel objects (type 1) at addresses that are hardcoded and not dependent on kernel compilation 
@@ -121,7 +124,7 @@ Part of our countermeasure is trusted code which operates in the guest operating
 From this point on, the system is considered to operate in an untrusted environment and a regular integrity checking of the protected objects is necessary to preserve the system's safety.
 Given a list of invariant kernel objects, the trusted code communicates this data (virtual address and size) of the kernel objects to observe after boot, and stores them in the guest's address space. When data of the last object have been gathered, the trusted code will raise a hypercall in order to send the collected entries to the hypervisor. The hypervisor will checksum the contents mapped at the addresses provided by the trusted code and will store their hashes in its address space, which is isolated and not accessible to the guest. The trusted code is then deactivated via a \emph{end-of-operation} message sent by the hypervisor. No objects are accepted after the kernel has booted. In fact, at this point, an attacker who is aware of the presence of our security measure could give rise to a Denial-Of-Service attack.
 
-It is important to point out that our system must be provided with a list of kernel objects on which it will enforce invariance. This list can be either generated by invariance detection systems like the ones described in ~\cite{HookSafe,6,7,8} or manually compiled by kernel and kernel-module developers.
+It is important to point out that our system must be provided with a list of kernel objects on which it will enforce invariance. This list can be either generated by invariance detection systems like the ones described in ~\cite{HookSafe,6,7,8} or manually compiled by kernel and kernel-module developers (for objects of type 1 and type 2).
 
 As already stated, the most beneficial aspect of implementing countermeasures in a separated virtual machine or within the hypervisor is the increased degree of security via isolation. Unfortunately, it often leads to higher performance overhead than the equivalent implementation in the target system. 
 A challenging task is that of checking integrity outside of the target operating system while limiting the performance overhead. We achieve this by exploiting the regular interaction of a hypervisor and the guest operating system. 
@@ -174,7 +177,7 @@ When the virtual addresses of all objects have been translated, a hypercall is r
 
 \textbf{Detection phase}
 In order to detect changes the hypervisor needs to access the contents at the guest physical addresses collected by the trusted module. This is achieved by mapping the physical address and size of each object in its private memory in order to compute the signature of its actual contents. When all objects have been checksummed an end-of-operation flag is set in the memory area shared with the trusted module, which in turn will be unloaded. 
-The checksum is performed by a procedure which implements the MD5 algorithm\cite{md5rfc}. This cryptographic hash function provides the integrity guarantees needed for our purposes. While stronger hash functions exist, we believe that the security and collision rate provided by MD5 are strong enough to adequately protect our approach from mimicry attacks. 
+The checksum is performed by a procedure which implements the MD5 algorithm\cite{md5rfc}. This cryptographic hash function provides the integrity guarantees needed for our purposes. While stronger hash functions exist, we believe that the security and collision rate provided by MD5 adequately protect our approach from mimicry attacks. 
 
 \textbf{Repairing phase}
 When the hypervisor detects that the signature of a protected object is different from the one computed the first time, two different behaviours are allowed: 
@@ -262,7 +265,7 @@ A list of synthetic kernel objects has been created to run a set of benchmarking
 The trusted module has been instrumented to create a set of objects with the aforementioned characteristics. 
 
 Checking the integrity of 15,000 kernel objects at a time, and only then returning control to the guest operating system is not a practical solution and it is affected by a considerable overhead that dramatically penalises the usability of the overall system. Moreover this solution would not scale with the number of objects that can arbitrarily grow if the goal is to minimise the attack surface. Therefore at each \texttt{VMExit} we check each time a different subset of the object set. This parameter is configurable and its value depends on the priorities of each installation (performance versus detection time). 
-In our proof of concept the hypervisor will check the integrity of 100 objects of 128 bytes each every time a MOV\_CR event is trapped. Needless to say, 150 \texttt{VMExit} events must occur in order to check the integrity of the entire list.
+In our proof of concept the hypervisor will check the integrity of 100 objects of 128 bytes each every time a MOV\_CR event is trapped. Needless to say, 150 \texttt{VMExit} events must occur in order to check the integrity of the entire list. The choice of the aforementioned numbers of objects to be protected is based on empirical observations that try to keep the user's experience within the guest as smooth as possible for the general tasks of every day computing. 
 
 \begin{figure}[htbp] 
 \begin{center}
@@ -500,10 +503,10 @@ $$ P_{t=1} = \frac{100}{15000}=0.6\% $$
 
 
 Although it seems there might be a very small chance for the hypervisor to detect whether one object has been compromised after one task switch, some considerations must be made to show that, from a practical point of view, this is not a consistent limitation.
-Rootkits that are capable of inflicting a high damage to their target system, usually have a quite complex behaviour and need to compromise more then just one object. Moreover the effectiveness of a rootkit depends on whether or not it can stay resident and keep target objects in their compromised state.
+Rootkits that are capable of inflicting a high damage to their target system, usually have a quite complex behaviour and need to compromise more than just one object. Moreover the effectiveness of a rootkit depends on whether or not it can stay resident and keep target objects in their compromised state.
 
  
-A 64-bit Linux rootkit\cite{rootkit64} that attacks browsers of clients to do iFrame injections has been found recently. After loading into memory via loadable kernel module, the rootkit retrieves kernel symbols with their physical address and write them into a hidden file
+A 64-bit Linux rootkit\cite{rootkit64} that attacks browsers of clients to do iFrame injections has been found recently. After loading into memory via loadable kernel module, the rootkit retrieves kernel symbols with their physical address and writes them into a hidden file
 
 \begin{verbatim}
 cat /proc/kallsyms > /.kallsyms_tmp 
@@ -525,7 +528,7 @@ This delay will definitely allow our countermeasure to detect this rootkit. More
 
 
 
-\begin{figure}[htbp]
+\begin{figure}[!htbp]
 \begin{center}
 \includegraphics[width=130mm]{images/hr_sim_1000}
 \caption{{Monte carlo simulations for the analysis of the probability of attack, compromising from 1 to 11 objects and restoring their original content after 100 task switches}}
@@ -538,13 +541,7 @@ To confirm what we claimed about the effectiveness of the described approach, we
 
 In Figure \ref{monteanalysis} we plot 1000 runs of our method when 1 to 11 objects are compromised and restored after 100 task switches. If an object stays compromised for a time longer than the one required for 150 task switches, it will certainly be detected ($Pr(detect)=1$) by the hypervisor. Therefore we provide an analysis under condition that is favourable to the attacker.  
 
-In Figure \ref{probts} the probability of successful attacks has been estimated for three cases that consist in restoring the original content of the compromised objects after 75, 90 and 120 task switches respectively.
-
-As expected, this probability is very small ($<< 0.65\%$) when the number of compromised objects is greater than 4 and the number of task switches $TS>100$.
-
-
-
-\begin{figure}[htbp]
+\begin{figure}[!htbp]
 \begin{center}
 \includegraphics[width=70mm, height=85mm]{images/hr_sim_1000_ts}
 \caption{{Probability of successful attack compared to restoring rate of 75, 90 and 120 task switches}}
@@ -552,13 +549,14 @@ As expected, this probability is very small ($<< 0.65\%$) when the number of com
 \end{center}
 \end{figure}
 
-
+In Figure \ref{probts} the probability of successful attacks has been estimated for three cases that consist in restoring the original content of the compromised objects after 75, 90 and 120 task switches respectively. This probability rapidly decreases as the number of compromised objects increases, as in rootkits with more complex behaviour. 
+As expected, this probability is very small ($<< 0.65\%$) when the number of compromised objects is greater than 4 and the number of task switches $TS>100$.
 
 A third possible way to compromise the guest kernel would be by corrupting critical kernel objects whose values legitimately change during the kernel's lifetime. Such objects are not invariant and thus cannot  be included in the list of objects that this approach checks since this system is unable to differentiate legitimate from non-legitimate changes. The majority though of existing kernel-mode rootkits modify invariant data structures. Thus our system reduces considerably the rootkit attack surface and prevents most rootkits from performing a successful attack.
 
 Lastly, our method relies on invariance inference engines to provide an accurate list of invariant critical kernel objects. In the worst case scenario, if the designated inference engine does not provide all the invariant critical kernel objects that are interesting targets for attackers (false negatives), this approach will be unable to detect attacks that occur in the non-reported kernel objects.
 
-\clearpage
+
 
 \section{Related work}\label{hr:related}
 Due to the constant development of malicious software and active research in the field, a number of efforts exist on detecting and preventing kernel-mode rootkits. 
@@ -585,10 +583,10 @@ However, the main limitation is represented by the isolation requirement which i
 \subsection{Kernel code integrity} \label{integrity}
 
 \paragraph{SecVisor}
-A countermeasure specifically designed to prevent the execution of unauthorized code is described in \cite{SecVisor}. For the reasons explained in the previous sections, malicious code executing in kernel mode can be extremely dangerous. SecVisor ensures that only approved code can execute in kernel mode. It comes in the form of a tiny hypervisor that operates at VMX root mode, exploiting the virtualisation capabilities of modern hardware architectures like AMD and Intel. By validating kernel code before executing it, SecVisor prevents the execution of injected code, as is the case of kernel rootkits. 
+A countermeasure specifically designed to prevent the execution of unauthorized code is described in \cite{SecVisor}. For the reasons explained in the previous sections, malicious code executing in kernel mode can be extremely dangerous. SecVisor ensures that only approved code can be executed in kernel mode. It comes in the form of a tiny hypervisor that operates at VMX root mode, exploiting the virtualisation capabilities of modern hardware architectures like AMD and Intel. By validating kernel code before executing it, SecVisor prevents the execution of injected code, as is the case of kernel rootkits. 
 Existing kernel code is also protected in order to prevent any illegal modification from unauthorised parties. In order to achieve the aforementioned goals, SecVisor virtualises the physical memory to set CPU-based memory protections over the kernel, the IO Memory Management Unit (IOMMU) to protect code from DMA writes, and the CPU Memory Management Unit (MMU) in order to check any modification to the MMU from the protected kernel. 
 The very limited amount of changes that need to be applied to port an operating system like Linux to execute on SecVisor makes it an attractive solution against rootkits. Unfortunately, the overhead of virtualising memory and shadowing several components of the CPU is very high, compared to other solutions that can achieve the same degree of security.
-Another limitation arise from the security evaluation of SecVisor: since control flow integrity is not guaranteed, \emph{return-to-libc} type attacks are still possible. For instance, an attacker can pass control to a kernel function of his choice by overwriting the return address of another function within the same kernel space. Such a  behaviour is considered totally legal by SecVisor.
+Another limitation arise from the security evaluation of SecVisor: since control flow integrity is not guaranteed, \emph{return-to-libc}\footnote{This type of attacks usually overwrites the return address on the call stack, replacing it with the address of a function that is already loaded in the binary and that provides the functionality required by the attacker, otherwise implemented by injecting new code.}  type attacks are still possible. For instance, an attacker can pass control to a kernel function of his choice by overwriting the return address of another function within the same kernel space. Such a  behaviour is considered totally legal by SecVisor.
 
 \paragraph{NICKLE}
 A system that prevents the execution of rootkits by detecting the presence of malicious code before its execution is NICKLE \cite{NICKLE}. It comes in the form of a minimal hypervisor which prevents unauthorized kernel code execution. The main advantages of this solutions consists in the fact that it does not require modifications to the guest OS kernel. Therefore commodity OSes can be supported without recompilation or reinstallation. 
@@ -600,7 +598,7 @@ Memory accesses to user code, user data and kernel data will proceed without any
 Kernel rootkit attacks would be detected and prevented since invalidated code would attempt to run in kernel mode.   
 A recent attack to bypass countermeasures against code injection attacks, such as the Non-Executable stack countermeasure, is Return Oriented Programming (ROP) \cite{geometry}. In ROP, the attacker, instead of injecting malicious code in the address space of a vulnerable process, crafts his malicious payload by combining fragments of existing code. This method of attacking has been used to create return-oriented rootkits which
 re-use fragments of authorized kernel code for malicious purposes \cite{Hund2009}. 
-Such rootkits can bypass countermeasures like the ones proposed by \cite{NICKLE, SecVisor}.
+Such rootkits can bypass countermeasures like the ones proposed in \cite{NICKLE, SecVisor}.
 
 
 \paragraph{Hookscout}
