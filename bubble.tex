@@ -450,7 +450,7 @@ However, if a countermeasure like the one described before is in place, precious
 As mentioned before, executing the $0xCC$ byte should be a convincing evidence of an on-going heap-based attack on the browser's heap. Moreover, when the operating system has been virtualised, the $0xCC$ interrupt handler implemented in the guest kernel can interact with the hypervisor in a straightforward way, via the raise of a hypercall as described in Chapter \ref{virt:paradigm}. This mechanism is used not only to notify  an attempt of execution of malicious code to the hypervisor, but also to update a blacklist of URLs that caused such an attack.
 A schema of such an environment is provided in Figure \ref{virtualdesktop}.
 
-\begin{figure}[t]
+\begin{figure}[t!]
 \begin{center}
 \includegraphics[scale=0.55]{images/virtualDesktop.pdf}
 \caption{{Schema of hypervisor integration: upon loading malicious content from bad.com (1) and local detection of  heap-based attack, the guest notifies the hypervisor (2) sending the malicious URL that caused the attack. The hypervisor will deliver this information to all virtual machines running on top (3) or, alternatively will update a blacklist in its private space.}}
