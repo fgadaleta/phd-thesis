@@ -3,7 +3,14 @@
 \epigraph{2in}{Prediction is very difficult, especially if it's about the future.}{Niels Bohr}{}
 
 
-Operating systems consist of trusted code that executes directly on top of a host's hardware. This code usually provides several functionalities such as abstraction, essential to develop programs that use the system functions offered by the operating system; arbitration, to allocate resources to more than one concurrently running program in a collision-free fashion and isolation to prevent one program from addressing the memory space of another \cite{stallings}.
+Operating systems consist of trusted code that executes directly on top of a host's hardware. This code usually provides several functionalities \cite{stallings} such as 
+
+\begin{itemize}
+\item abstraction, essential to develop programs that use the system functions offered by the operating system 
+\item arbitration, to allocate resources to more than one concurrently running program in a collision-free fashion and 
+\item isolation, that prevents one program from addressing the memory space of another
+\end{itemize}
+
 
 Due to their prominent position, operating systems become a common target of attackers who regularly try to circumvent their protection mechanisms and modify them to their advantage. In the past, a malicious program that allowed a user to elevate his access and become a system administrator, or \texttt{root}, was called a \texttt{rootkit}. Today the meaning of rootkits has changed and is used to describe software that hides the attacker's presence from the legitimate system's administrator. 
 %A trivial classification of rootkits is based on their main target. Thus, user-mode rootkits target applications in userland and achieve stealth by hiding resources from the operating system arbitration APIs. These types of rootkits are portable and normally characterized by a high attack success rate\cite{usermoderootkit}. Their damage impact is limited by how critical the target application is, but it is often localized by the operating system isolation functionality. 
@@ -27,7 +34,7 @@ Determining which kernel objects are modified by a rootkit not only provides an 
 In this chapter we present an invariance-enforcing framework that mitigates rootkits in common operating system kernels. 
 Our protection system runs inside a hypervisor and protects operating systems that have been virtualised. 
 Some practical constraints that led to the relaxation of the original problem, impose negligible performance overhead on the virtualised system.
-Moreover it does not require kernel-wide changes making it an attractive solution for production systems.
+Moreover it does not require kernel-wide changes, making it an attractive solution for production systems.
 %FIXME use this text 
 %We start from the observation that many critical kernel data structures are invariant. Many data structures used by rootkits to change the control-flow of the kernel contain values that would normally stay unchanged for the lifetime of a running kernel. Our protection system consists of a monitor that checks the contents of data structures that need to be protected at regular times and detects whether their contents have changed. If a change is detected, our system warns the administrator of the exploited kernel and corrects the problem by restoring the modified data structures to their original contents. Our monitor runs inside a hypervisor and protects operating systems that are being virtualized. Due to the hardware-guarantees of isolation that virtualization provides, an attacker has no way of disabling our monitor or tamper with the memory areas that our system uses. 
 %\emph{Hello rootKitty} imposes negligible performance overhead on the virtualized system and it doesn't require kernel-wide changes other than 
@@ -35,7 +42,7 @@ Moreover it does not require kernel-wide changes making it an attractive solutio
 %existing invariance-inferencing engines and protect commodity operating systems running on virtualized environments. Alternatively, our system can be used directly
 %by kernel developers to protect their invariant structures from rootkit attacks.
 
-The remainder of this chapter is structured as follows. Section~\ref{hr:motivation} describes the problem of rootkits and presents our attacker model. In Section \ref{hr:approach} we present the architectural details of our countermeasure, followed by its implementation.
+The remainder of this chapter is structured as follows. Section~\ref{hr:motivation} describes the problem of rootkits and presents the attacker model. In Section \ref{hr:approach}, we present the architectural details of our countermeasure, followed by its implementation.
 We evaluate our prototype implementation in Section~\ref{hr:evaluation} and present its limitations in Section~\ref{hr:limitations}. We discuss related work on rootkit detection in Section~\ref{hr:related} and conclude in Section~\ref{hr:conclusion}.
 
 \section{Motivation}\label{hr:motivation}
@@ -45,7 +52,7 @@ In this section we describe common rootkit technology and we also present the mo
 Rootkits are pieces of software that attackers deploy in order to hide their presence from a system. Rootkits can be classified according to the target and consequently to the privilege-level which they require to operate. The two most common rootkit classes are: a) user-mode and b) kernel-mode.
 
 User-mode rootkits run in the user-space of a system without the need of tampering with the kernel. In the Microsoft Windows platform, user-mode rootkits commonly modify the loaded copies of the Dynamic Link Libraries (DLL) that each application loads in its address space~\cite{SymantecRootkits}. 
-More specifically, an attacker can modify function pointers of specific Windows APIs and execute their own code before and/or after the execution of the legitimate API call. In Linux, user-mode rootkits hide themselves mainly by changing standard Linux utilities, such as \texttt{ps} and \texttt{ls}. Depending on the privileges of the executing user, the rootkit can either modify the default executables or modify the user's profile in a way that their executables will be called instead of the system ones (e.g.,by changing the \texttt{PATH} variable in the Bash shell).
+More specifically, an attacker can modify function pointers of specific Windows APIs and execute their own code before and/or after the execution of the legitimate API call. In Linux, user-mode rootkits hide themselves mainly by changing standard Linux utilities, such as \texttt{ps} and \texttt{ls}. Depending on the privileges of the executing user, the rootkit can either modify the default executables or modify the user's profile in a way that their executables will be called instead of the system ones (e.g. by changing the \texttt{PATH} variable in the Bash shell).
 
 Kernel-mode rootkits run in the kernel-space of an operating system and are thus much stronger and much more capable. The downside, from an attacker's perspective, is that the user must have enough privileges to introduce new code in the kernel-space of each operating system. In Windows, kernel-mode rootkits are loaded as kernel extensions or device-drivers and target locations such as the \texttt{call gate} for interrupt handling or the System Service Descriptor Table (SSDT).
 The rootkits change these addresses so that their code can be executed before specific system calls. This capability is usually referred to as \texttt{hooking}. In Linux, rootkits can be loaded either as a Loadable Kernel Module (LKM), the equivalent of Windows device-drivers, or written directly in the memory of the kernel through device files that provide access to system's memory such as \texttt{/dev/mem} and \texttt{/dev/kmem}~\cite{kmemRootkit}. These rootkits target kernel-data structures in the same way that their Windows-counterparts do. Although we focus on Linux kernel-mode rootkits, the concepts we introduce here apply equally well to Windows kernel-mode rootkits.
@@ -208,6 +215,8 @@ In order to evaluate whether our approach would detect a real rootkit we install
 \hline
 \bf{Component} & \bf{Description} \\ \hline
 Processor & Intel Core 2 Duo \\ \hline
+Model & E6750 @ 2.66GHz \\ \hline
+Speed [MHz]  & 2667.000 \\ \hline
 Virtualisation & enabled Intel VT\\ \hline
 Memory & 4GB \\ \hline
 NPT/EPT & not enabled \\ \hline
@@ -216,7 +225,9 @@ OS & Linux 2.6.36  \\ \hline
 }
 
 \end{center}
+\vspace{-0.3cm}
 \caption{Testing machine specification}
+\vspace{0.3cm}
 \label{machinespecs}
 \end{table}
 
@@ -596,9 +607,7 @@ At system startup the guest's shadow memory is empty and the system bootstrap co
 The actual protection occurs after validation, when the virtual machine is about to execute a kernel instruction. At this point NICKLE will redirect the instruction fetch to the shadow memory rather than standard memory, after verifying that the current instruction is authenticated. 
 Memory accesses to user code, user data and kernel data will proceed without any intervention. 
 Kernel rootkit attacks would be detected and prevented since invalidated code would attempt to run in kernel mode.   
-A recent attack to bypass countermeasures against code injection attacks, such as the Non-Executable stack countermeasure, is Return Oriented Programming (ROP) \cite{geometry}. In ROP, the attacker, instead of injecting malicious code in the address space of a vulnerable process, crafts his malicious payload by combining fragments of existing code. This method of attacking has been used to create return-oriented rootkits which
-re-use fragments of authorized kernel code for malicious purposes \cite{Hund2009}. 
-Such rootkits can bypass countermeasures like the ones proposed in \cite{NICKLE, SecVisor}.
+A recent attack to bypass countermeasures against code injection attacks, such as the Non-Executable stack countermeasure, is Return Oriented Programming (ROP) \cite{geometry}. This method of attacking has been used to create return-oriented rootkits which re-use fragments of authorized kernel code for malicious purposes \cite{Hund2009}. Such rootkits can bypass countermeasures like the ones proposed in \cite{NICKLE, SecVisor}.
 
 
 \paragraph{Hookscout}
@@ -630,12 +639,44 @@ The main limitation of HookSafe consists in the fact that it does not protect no
 An approach that dynamically monitors operating system kernel integrity is described in \cite{SBCFI}. In this work the authors argue that enforcing control flow integrity can effectively protect against a large class of kernel rootkits. The main observation consists in the fact that, despite the specific behaviour of rootkits (such as injecting code, compromising function pointers, changing the value of specific registers, etc.), the execution flow of a compromised system will differ from the execution flow determined before the attack.
 Therefore, control flow integrity can be considered a valuable measure of the integrity of the overall system.
 Due to the persistent nature of rootkits, monitoring control flow integrity continuously is not required. Infrequent monitoring can still effectively protect the system and reduce the performance overhead consistently.
-SBCFI enforces an approximation of control flow integrity, called state-based control flow integrity. While control flow integrity checks each branch of a precomputed control flow graph in step with the program's execution, SBCFI periodically examines the kernel's state and validate it as a whole.
+SBCFI enforces an approximation of control flow integrity, called state-based control flow integrity. While control flow integrity checks each branch of a precomputed control flow graph in step with the program's execution, SBCFI periodically examines the kernel's state and validates it as a whole.
 The target kernel code is first checked for any modification, then all static branches are validated. In a successive phase, all usable function pointers of the heap are verified that they target valid code.
 The approximated nature of control flow integrity makes the overhead of SBCFI negligible. Moreover, the control flow integrity monitor can be isolated from the target operating system. 
 Both the implementations of SBCFI on top of the Xen hypervisor and the VMware Workstation virtual machine monitor have similar performance impact.
 
 
+\begin{table}
+\begin{tabular}{ |l|l|l|l|l| }
+\hline
+\multicolumn{5}{ |c| }{Hardware-based countermeasures} \\
+\hline
+\textbf{} & \textbf{protect nc data} & \textbf{special hw}  & \textbf{protect ROP} & \textbf{Overhead} \\ \hline
+
+\multirow{1}{*} 
+{Copilot} & Yes & Yes & No & High \\
+{Gibraltar} & No & Yes & No & High \\
+
+\hline
+\multicolumn{5}{ |c| }{Kernel code integrity} \\
+\hline
+\textbf{} & \textbf{protect nc data} & \textbf{special hw}  & \textbf{protect ROP} & \textbf{Overhead} \\ \hline
+
+\multirow{1}{*}
+{SecVisor}  & No & No & No & High \\
+{NICKLE}    & No & No & No & Low \\
+{Hookscout} & No & No & No & High \\
+{Hooksafe}  & No & No & No & Low \\
+{SBCFI}     & No & No & No & Low \\
+\hline
+
+\end{tabular}
+
+
+\vspace{-0.3cm}
+\caption{Comparison of existent countermeasures that protect commodity operating systems against kernel mode rootkits. Column \textit{protect nc data} indicates whether non-control data are protected; \textit{special hw} indicates whether special purpose hardware is required; \textit{protect ROP} indicates whether the countermeasure protects against Return-Oriented Programming attacks; \textit{Overhead} indicates whether the overhead of the countermeasure is low or high}
+\vspace{0.3cm}
+\label{compcountermeasures}
+\end{table}
 
 
 \subsection{Analysis and profiling systems} \label{profiling}
@@ -650,17 +691,17 @@ Recent malware like Storm and Conficker are known to detect they are running ins
 MAVMM \cite{MAVMM} is a virtual machine monitor specifically designed for malware analysis. It can extract useful information for a complete profile of the investigated malware such as memory pages, system calls and accesses to disks and network devices. Contrarily to other hypervisors, MAVMM lets most hardware access requests go through without interception. This feature makes the entire platform invisible to the malware while still controlling accesses to the aformentioned areas of the system. The analysis platform only intercepts guest execution at a few places, in order to protect its own integrity and log the guests' behaviours for further analysis. Hardware supported Nested Page Tables (NPT) are used to protect its memory from being compromised by the guest, while an IOMMU unit is used to prevent any tamper by external hardware devices via DMA.
 The execution trace of a guest program is recorded by single stepping its execution at each instruction. This is implemented by virtualising the TF flag that will raise a debugger exception, which will in turn be intercepted by MAVMM. 
 A log of executed system calls can give a good picture of what the malware under investigation is trying to do. MAVMM can record all system calls that a guest system invokes during its lifetime. Selective analysis of specific processes in the guest is also possible by notifying MAVMM each time a process switch occurs in the guest.
-An issue to deal with consists in choosing the safest place to store collected information for further analysis. Using the same disk device would expose collected data to be compromised by the analysed malware. Therefore, an USB flash drive or a separate disk unit controlled by different device drivers is an approach preferred by the authors.
+A known issue to deal with consists of choosing the safest location to which log files can be stored and subsequently analysed. Using the same disk device would expose collected data to the attacker. Therefore, an USB flash drive or a separate disk unit controlled by different device drivers is an approach preferred by the authors.
 
 
 
 \paragraph{Hookmap}
-Wang et al. \cite{hookmap} is an analysis tool against persistent rootkits based on the observation that rootkits try to hide their presence within the target kernel and they usually install kernel hooks on the corresponding kernel-side execution path invoked by the target program. Therefore given a security program, the authors argue that it is sufficient to analyse its kernel-side execution path to detect and investigate the rootkit behaviour. Linux utility programs like \emph{ls}, \emph{ps} and \emph{netstat} have been analysed and their relative kernel hooks identified. HookMap found that there are 35 kernel hooks mapped to the \emph{ls} utility, 85 kernel hooks for \emph{ps} and so forth. As a result it is a systematic approach to uncover kernel hooks that can be potentially hijacked. By recording possible control-flow transfer instructions in the kernel-side execution paths HookMap is able to derive all related kernel hooks. For isolation purposes HookMap is based on QEMU and the target operating system is running within a virtual machine environment. 
-
+Wang et al. \cite{hookmap} proposed Hookmap, an analysis tool against persistent rootkits. Hookmap is based on the observation that rootkits try to hide their presence within the target kernel and they usually install kernel hooks on the corresponding kernel-side execution path invoked by the target program. Therefore given a security program, the authors argue that an analysis of its kernel-side execution path would be sufficient to detect and investigate a rootkit's behaviour. As a consequence, the user-side execution path might be neglected. Linux utility programs like \emph{ls}, \emph{ps} and \emph{netstat} have been analysed and their relative kernel hooks identified. Hookmap found 35 kernel hooks mapped to the \emph{ls} utility, 85 kernel hooks for \emph{ps} and so forth. As a result, this approach uncovers those kernel hooks that can be potential targets of attacks. By recording possible control-flow transfer instructions in the kernel-side execution paths, Hookmap is able to derive all related kernel hooks and search for abnormalities at runtime. The authors exploit virtualisation technology and system emulation software QEMU to perform their analysis in complete isolation.
+ 
 
 \paragraph{HookFinder}
 An approach that does not rely on any prior knowledge of hooking mechanisms is HookFinder \cite{hookfinder}. Therefore it represents a suitable tool to identify novel hooking mechanisms. To overcome the limitation of static analysis, that can be easily circumvented by malicious programs equipped with code obfuscation techniques, HookFinder relies on dynamic analysis. This means that malware programs are analysed while being executed within a controlled environment. A whole-system emulator is used for the purpose. All the information collected by the three main components of HookFinder, namely the impact engine, the hook detector and the semantics extractor, is used to derive how the rootkit implants the hook and how the hook is activated by the operating system. When the malware starts executing, the initial impacts, that is data written directly by the malicious code (and by external components, on behalf of malicious code) are added to a list to be monitored. Then HookFinder keeps track of the impacts propagating through the whole system. For instance, if it is observed that the instruction pointer is loaded with a monitored impact, and the execution jumps immediately into the malicious code, then a hook has been identified.
-Once a hook has been identified, HookFinder records into a trace the details about the propagated impacts in the system. By combining the information of the trace and operating system level semantics, HookFinder finally provides an intuitive graphical representation that can be used by malware analysts for a better understanding of the hooking mechanism under investigation.
+Once a hook has been identified, HookFinder logs into a trace the details about its behaviour within the system. By combining the information of the trace and operating system level semantics, HookFinder can provide an intuitive graphical representation that might be useful to malware analysts for a better understanding of the hooking mechanism under investigation.
 
 
 
@@ -683,7 +724,7 @@ We realised our idea by designing and implementing a lightweight countermeasure 
 Upon detection of a change of an invariant kernel object, our countermeasure alerts the administrator of the guest operating system and proceeds to repair the kernel by restoring the data structure to its original values. Due to this change, the rootkit's injected code is usually no longer reachable by any statements in the kernel and thus can no longer affect the running kernel's operations. 
 
 The performance impact that usually affects virtualisation technology has been consistently reduced by relaxing the problem of protecting a high number of kernel data structures, without limiting the security degree of the countermeasure. A probabilistic analysis has been provided in order to assess the impact of the aforementioned relaxation, in terms of security. 
-Moreover, our prototype has been evaluated on synthetic and real rootkits and it has been showed that it can detect control-flow changes with negligible performance and memory overhead, making it a viable countermeasure for protecting operating systems in virtualised environments.
+Moreover, our prototype has been evaluated on synthetic and real rootkits (such as the ones described in \cite{kernel_hijack, adoreng}\footnote{The rootkits considered in the aforementioned prototype belong to a family of rootkits designed to compromise the system call table and kernel function pointers that perform operations like process forking and opening/closing/writing file descriptors, among other tasks.}) and it has been showed that it can detect control-flow changes with negligible performance and memory overhead, making it a viable countermeasure for protecting operating systems in virtualised environments.
 
-The limit of 15000 critical kernel objects holds only in the prototype. However we consider it an acceptable amount that can protect a high number of kernel data structures and function pointers. 
+The limit of 15000 critical kernel objects holds only in the prototype. However we consider this number large enough to protect a large surface that will make the system much harder to compromise with the aid of those kernel mode rootkits known at date. 
 Although the attack surface results dramatically reduced, attacks to variant data structures are still possible. However, a different strategy and system's design must be investigated in order to overtake such a limitation. We believe that research in that direction is needed as more virtualisation-based systems are making their appearance on the scene. 

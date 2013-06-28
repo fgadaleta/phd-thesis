@@ -14,8 +14,7 @@ Leveraging virtualisation technology to mitigate attacks to operating system ker
 By critical code we refer to code that, in general, monitors the state of the system and that it is desirable, mainly from a security point of view, to maintain its execution. Examples of such code include the integrity checking of sensitive kernel-level data structures that are usually abused by rootkits or the scanning of files and memory areas for known malware signatures, as in the case of common antivirus systems. 
 Given our assumption of a kernel-level attacker, it is also needed to ensure the integrity of the critical code itself to protect it from malicious modifications which might compromise its efficacy or completely deactivate its operations.
 As explained in Chapter \ref{hellorootkitty}, a way of achieving such a goal is to implement and execute security-critical code within the hypervisor. Alternative approaches monitor the target system from a separate virtual machine in order to take advantage of isolation between the hypervisor and any virtual machine as well as isolation among multiple virtual machines \cite{lares, outvm, livewire}.
-Unfortunately, both approaches are known to be affected by a consistent performance overhead. Moreover, when integrity checking methods are considered, the amount of guest memory to be checked, in order to reduce the attack surface considerably, can impose an overhead or detection time that might prohibit the adoption of such solutions in production systems. 
-
+Unfortunately, both approaches are known to be affected by a consistent performance overhead. Moreover, when integrity checking methods are considered, the amount of guest memory to be checked can be so large that the overhead might become prohibitive for adoption in production systems.
 Designing approaches in which guest operating systems cooperate with the hypervisor can lead to high degrees of security, even comparable to the ones guaranteed by completely isolated systems, while significantly reducing the overall performance impact.
 
 
@@ -79,7 +78,7 @@ Due to virtualisation however, the hypervisor has more power than the virtualise
 
 HyperForce takes advantage of the paging system provided by the Linux kernel (extended with hypervisor capabilities) to write-protect the memory pages holding the instructions and data of the security-critical code. 
 In order to allow the code to make changes to its data, HyperForce can unlock the memory pages before it triggers an interrupt of its virtual device and lock them back immediately after the code's execution. 
-Most of the performance penalty is due to the task of trapping an access violation from the guest to the hypervisor. Hardware-supported extended page tables (Intel EPT or AMD NPT) for the memory management unit consistently reduces this performance impact.
+Most of the performance penalty is due to the task of trapping an access violation from the guest to the hypervisor. As explained in Section \ref{virtperf}, hardware-supported extended page tables (Intel EPT or AMD NPT) for the memory management unit consistently reduces this performance impact.
 
 Another way to circumvent the protection mechanism in place consists in compromising the Interrupt Descriptor Table (IDT), where pointers to interrupt handlers are stored. When an exploitable kernel-level vulnerability is found, it can be relatively easy to compromise the IDT. 
 Therefore HyperForce write-protects the memory page holding the Interrupt Descriptor Table (IDT) of the protected guest. Lastly, HyperForce protects the Interrupt Descriptor Table Register (IDTR) that contains the address of the IDT, by checking its integrity at regular intervals. The aforementioned protection will prevent any attempt to use an Interrupt Descriptor Table that is different from the one observed within the untampered system.
@@ -135,8 +134,8 @@ A re-implementation has been necessary also due to the different hypervisor tech
 %
 %The original version of \HRK{} was implemented in BitVisor~\cite{1508311}, a tiny hypervisor designed for mediating I/O access from a single guest operating system. In order to be able to
 %fairly compare it with our implemented version using HyperForce, we also re-implemented the original \HRK{} in KVM.
-A schema of the aforementioned integrity checking method implemented in KVM is provided in Fig.~\ref{hellorootkitty_schema}. It can be observed that while the implementation of the in-hypervisor approach needs instrumentation code to be added to the host kernel, the HyperForce framework requires only the system emulator to be modified (Fig.~\ref{hyperforce_schema}). Since QEMU runs as a regular process in user space, this architecture results of easier deployment in those systems in which modifying a running kernel is forbidden.  
-In both cases the trusted module needs to be added to the guest kernel.\\
+A schema of the aforementioned integrity checking method implemented in Linux/KVM is provided in Fig.~\ref{hellorootkitty_schema}. It can be observed that while the implementation of the in-hypervisor approach needs instrumentation code to be added to the host kernel, the HyperForce framework requires only the system emulator to be modified (Fig.~\ref{hyperforce_schema}). In Linux/KVM, each virtual machine runs a regular process in user space. An instance of QEMU provides the required emulation of the overall system. A trusted module within the guest kernel to be protected is needed, regardless the choice of the hypervisor.
+
 
 
 \begin{figure}
@@ -233,7 +232,7 @@ HF		& 5.71   (+4.3\%)      &	32.88  (+2.5\%)    \\
 
 
 
-\paragraph{Macro-benchmarks} \label{macrobench}
+\subsection{Macro-benchmarks} \label{macrobench}
 We run two macro benchmarks with the \emph{iperf} utility, that measures TCP and UDP bandwidth performance and \emph{bunzip} that extracts the Linux kernel source code from a compressed file. The original in-hypervisor version of the integrity checking method is denoted as \texttt{in-hyper} while the version using the HyperForce framework is denoted as \texttt{HF}.
 
 While the in-hypervisor approach, due to the slower context switching, has a slightly better throughput of network performance in the host machine
@@ -243,7 +242,7 @@ The performance overhead of our approach is about half of the in-hypervisor appr
 The second column reports overhead of \textit{bunzip} measured in seconds. Again, HyperForce outperforms the in-hypervisor approach, showing an overhead of only 2.5\% compared to the native KVM guest.
   
 
-\paragraph{Micro-benchmarks} \label{microbench}
+\subsection{Micro-benchmarks} \label{microbench}
 Micro benchmarks show a more detailed picture of the two approaches. 
 We use \emph{LMbench}~\cite{lmbench-paper}\footnote{We use version 3 of
 LMbench as available at \url{http://lmbench.sourceforge.net/}.} to measure the overhead of operating system specific events such as context switch, memory mapping latency, page fault, signal handling and fork latency.
@@ -347,7 +346,7 @@ Our results indicate that the HyperForce framework could be used to re-implement
 \clearpage
 
 \section{Related work}\label{hf:related}
-In this section we review related work in the domain of kernel code integrity assurance. We identify three main areas of active research. Two methods that, similarly to the approach described above, inject security agents within a target system are described in Section \ref{secagent}. Protection of commodity operating systems by secure code that is isolated exploiting the hardware capabilities of modern processor architecures, is described in Section \ref{hwbased}. Finally, work related to formal verification of commodity operating systems and hypervisors is provided in Section \ref{formal}.
+In this section we review related work in the domain of kernel code integrity assurance. We identify three main areas of active research. Two methods that, similarly to the approach described above, inject security agents within a target system are described in Section \ref{secagent}. Protection of commodity operating systems by secure code that is executed in isolation with the aid of the regular protection mechanisms, is described in Section \ref{hwbased}. Finally, work related to formal verification of commodity operating systems and hypervisors is provided in Section \ref{formal}.
 
 %For a discussion of literature related to rootkit detection we refer the reader to \cite{hellorootkitty}. 
 
@@ -417,7 +416,7 @@ As a result, Kruiser implemented in Hyperforce would become a security counterme
 
 \subsection{Hardware-based techniques} \label{hwbased}
 \paragraph{Flicker}
-An infrastructure that allows the execution of security critical code, in complete isolation from the rest of the system is described in \cite{flicker}. In order to guarantee such isolation, Flicker takes advantage of hardware support such as AMD SVM or the equivalent Intel Trustes eXecution Technology. These chips allow the launch of a virtual machine monitor or a security kernel at any time, still protecting their code from malicious software.
+An infrastructure that allows the execution of security critical code, in complete isolation from the rest of the system is described in \cite{flicker}. In order to guarantee such isolation, Flicker takes advantage of hardware support such as AMD SVM or the equivalent Intel Trusted eXecution Technology. These chips allow the launch of a virtual machine monitor or a security kernel at any time, still protecting their code from malicious software.
 Contrarily to hypervisor's development, that even in the case of minimal hypervisors, usually adds thousands of lines of code to the trusted computing base (TCB), the TCB of Flicker is as small as 250 lines of code. The programmer can add only the code that implements her particular application in a bottom-up approach. 
 One of the most advantageous peculiarities of Flicker consists in the fact that isolation and code attestation can be guaranteed even in the presence of compromised BIOS, DMA devices and the operating system. 
 When the processor receives an init instruction, it disables DMA, system interrupts and debugging access, enters at 32-bit protected mode and jumps to the provided entry point to start the execution of the isolated application.

@@ -1,6 +1,6 @@
 \chapter{Virtualisation: a new paradigm}\label{virt:paradigm}
 
-\epigraph{2in}{If you want to get laid, go to college. If you want an education, go to the library.}{Frank Zappa}{}
+\epigraph{2in}{Without deviation progress is not possible.}{Frank Zappa}{}
 
 The \emph{cloud} is probably the most widely used technological term of the last years \cite{Buyya:2011:CCP:1971955}. 
 Its supporters present it as a complete change in the way that companies operate that will help them scale on-demand without the hardware-shackles of the past. 
@@ -17,7 +17,7 @@ Regardless of one's view of the cloud, one of the main technologies that makes t
 
 Once newer hardware met acceptable requirements of efficiency and performance, the new virtualisation paradigm found its way in several scenarios that shared common needs: decoupling services from the infrastructure and optimising utilisation of physical resources.%%%SAJJAD: virtulisation spelling mistake
  
-The trend of server consolidation, virtualisation of storage, networking and entire machines, paved the way for an entirely new business model in which changing, adding, removing, or migrating infrastructure components could be achieved easily with a dramatic drop in operational costs. %%%SAJJAD
+The trend of server consolidation, virtualisation of storage, networking and entire machines, paved the way for an entirely new business model in which changing, adding, removing, or migrating infrastructure components could be achieved easily with a dramatic drop in operational costs. Considering the costs required to switch to a new technology such as hiring and training, a cost reduction of approximately 55\% can be obtained \cite{costvirt}. From another perspective, virtualisation technology reduces data center energy consumption by 10\% to 40\% \cite{costvirt2}. %%%SAJJAD
 
 The reduced performance impact that comes with hardware support is constantly accelerating the adoption of virtualisation technology and facilitating the migration from traditional infrastructure to the new paradigm.
 %Virtualisation as a new IT paradigm. What is virtualisation technology, why is it widely considered in the industry and relations with "the cloud". 
@@ -156,9 +156,9 @@ A list of instructions that cause VM exit when the processor is in \emph{VMX non
 \hline
 \texttt{Unconditionally VMExit}  \\
 \hline
-CPUID          & 0xF30FC7 & Enter VMX Operation \\
-INVD           & 0x0F01C4 & Leave VMX Operation \\
-MOV from CR3   & 0x0F01C1 & Call to VM Monitor \\
+CPUID          & 0x0A20F & Returns processor type and features \\
+INVD           & 0x0F08 & Flushes CPU internal cache  \\
+MOV from CR3   &  & Move from Control Register 3 \\
 VM* insn & & All instructions in the \\
 & & VM extended instruction set \\
 \hline
@@ -188,8 +188,8 @@ WRMSR   & 0x0F30     & Write to Model Specific Register \\
 \end{table}
 
 \clearpage
-\subsection{Performance}
-The high complexity of the trapping mechanism has an impact on the overall performance of the system. Even for hardware-assisted virtualisation, VM exits are expensive. 
+\subsection{Performance}\label{virtperf}
+The high complexity of the trapping mechanism has an impact on the overall performance of the system. Even for hardware-assisted virtualisation, VM exits are expensive. If regular instructions are affected by a latency in a range from 1 to 50 clock cycles, transitions between a virtual machine and the hypervisor can take thousands of cycles each \cite{intel-optimization}.  
    
 %Introduce the costs of trapping in terms of clock cycle and latency \\ 
 %...Hence, the cost of VMentry and VMexit is an important factor in the performance of implementation methods for system virtualisation.
@@ -230,7 +230,7 @@ Prior to the advent of hardware-supported virtualisation, the hypervisor had to 
 
 
 Lately, vendors like AMD and Intel included hardware support for memory virtualisation, called AMD Nested Page Tables (NPT) and Intel Extended Page Tables (EPT)  respectively.\\ %%%SAJJAD: relocated "respectively"
-In this second scenario (Figure \ref{EPT}), any access to a logical page from within the guest triggers the composite translation of both $LPA \rightarrow PPA$ and $PPA \rightarrow MPA$. Therefore no shadow pages are needed and data will be kept synchronised without additional overhead. Clearly, the cost of a page walk needed for the double translation is slightly higher with respect to the one performed with traditional page tables\footnote{The use of large pages when NPT/EPT is enabled reduces the overall impact inflicted by the higher cost of page walks, as it has been measured in \cite{perfEPT, perfESX} }.  
+In this second scenario (Figure \ref{EPT}), any access to a logical page from within the guest triggers the composite translation of both $LPA \rightarrow PPA$ and $PPA \rightarrow MPA$. Therefore no shadow pages are needed and data will be kept synchronised without additional overhead. Clearly, the cost of a page walk needed for the double translation is slightly higher with respect to the one performed with traditional page tables\footnote{The use of large pages when NPT/EPT is enabled reduces the overall impact inflicted by the higher cost of page walks from 50\% to 70\% (depending on the type of benchmark), as it has been measured in \cite{perfEPT, perfESX} }.  
 
 
 The non-negligible performance impact introduced by the technology should always be taken into consideration for correctly designing infrastructures that rely heavily on virtualisation.%%%SAJJAD: "rely heavily" instead of "heavily rely"  (both are kinda correct, but this is better)
@@ -256,10 +256,9 @@ Despite the performance penalty of the hypercall mechanism, it revealed to be ex
 
 
 \section{Benefits and drawbacks}
-%The numerous advantages introduced by virtualisation technology are influencing several aspects of designing modern computing infrastructure. Hardware engineers are improving virtualisation-supported processors at a constant pace, reducing what was used to be a considerable gap between performance of software running on real hardware and in virtualisation environments.
 The numerous advantages introduced by virtualisation are influencing several aspects of designing modern computing infrastructure. Hardware engineers are improving virtualisation-supported processors at a constant pace, reducing what used to be a considerable gap between the performance of software running on real hardware and those in virtualisation environments.%%%SAJJAD
 
-Despite ample room for the improvement of the latency of complex instructions, like the ones offered by the virtualisation instruction set, server consolidation, one of the most frequent applications of virtualisation technology in the industry, is contributing to a much more efficient usage of computing resources. The significant reduction of energy consumption is a benefit that comes as a direct consequence. Server consolidation addresses the reduction of existing infrastructure \cite{consolidation}. Moreover, less physical hardware also leads to lower management costs (such as the costs of regular wearing, faulty hardware, etc.) 
+Despite ample room for the improvement of the latency of complex virtualisation-related instructions, server consolidation, one of the most frequent applications of virtualisation technology in the industry, is contributing to a much more efficient usage of computing resources. Server consolidation addresses the reduction of existing infrastructure \cite{consolidation}. Therefore, significant reduction of energy consumption is a benefit that comes as a direct consequence. Moreover, less physical hardware also leads to lower management costs, such as the costs of regular wearing, faulty hardware, etc. 
 %It goes without saying that it is the reduction of these types of costs that triggered the migration to virtualised data centres in the early days and encouraged other users to do so, later on
 It goes without saying that it is the reduction of these types of costs that triggered the migration to virtualised data centres in the early days and encouraged other users to follow later on.%%%SAJJAD
 
@@ -267,18 +266,13 @@ The natural course of hardware development and the popularity of virtualisation 
 
 Despite the benefits described above, which might be interpreted more as business-related advantages, a feature that is rendering virtualisation technology even more attractive from a more technical view point, is the inherent isolation of virtual machines from themselves and the hypervisor. The need for executing several guests at the same time and preventing any type of interference are requirements that cannot be fulfilled without isolation.
 
-As explained in Section \ref{virt:tech}, it should be clear that hardware-support is not only beneficial to the overall performance impact\footnote{The benefit becomes consistent when hardware-supported virtualisation is compared to software emulation. But compared to a native system, a virtualisation solution continues to have non-negligible impact.} but also to security. In a hardware-assisted virtualisation framework it is substantially hard - sometimes not practically feasible - to break the isolation constraint from within a virtual machine. 
-%This particular feature, which comes by design, is broadening those researchers' horizons who provide security solutions based on sandboxes or similar isolation environments.
+As explained in Section \ref{virt:tech}, it should be clear that hardware-support is not only beneficial to the overall performance impact\footnote{The benefit becomes consistent when hardware-supported virtualisation is compared to software emulation. But compared to a native system, a virtualisation solution continues to have non-negligible impact in the range between 10\% and 30\%, depending on the type of benchmark \cite{hypercomp}.} but also to security. In a hardware-assisted virtualisation framework it is substantially hard - sometimes not practically feasible - to break the isolation constraint from within a virtual machine. 
 This particular feature, which comes by design, is broadening the horizon of those researchers who provide security solutions based on sandboxes or similar isolation environments.%%% SAJJAD
  
 
 Apart from the use of virtualisation as a way to host different operating systems on a single physical machine, virtualisation is currently also being used to provide greater security guarantees for operating system kernels.
 This specific scenario will be described extensively in Chapter \ref{hellorootkitty} and Chapter \ref{hyperforce}.
 
-%Condensing several physical machines into fewer well-dimensioned ones (energy efficiency) \\ 
-%Management costs (less hardware required for server consolidation, better maintenance, creating, destroying, migrating machines) \\
-%Hardware-supported virtualisation guarantees complete isolation among virtual machines reducing performance overhead with respect to virtualisation-by-emulation \\
-%[drawbacks]\\
 However, moving the direct control of physical hardware to the lower level of the hypervisor, and delegating to this only component all critical operations with the purpose of arbitrating the execution of the guests, might lead to security issues. Obviously, a bug within hypervisor code might affect the entire virtualisation platform. 
 A general strategy to avert such an issue involves keeping the hypervisor's code size as small as possible in order to increase the chances to discover bugs and provide fixes at the earliest.
  
@@ -287,7 +281,6 @@ The challenging part of the verification task becomes more evident since hypervi
 Last but not least, virtualisation strategies that can fully exploit the hardware to execute a multitude of guest operating systems with high performance, require the hypervisor to execute directly on physical hardware. This can increase the size of the hypervisor (a large code base is usually represented by device drivers) and make verification a non-tractable task. However, there have been attempts to formally verify hypervisors with a small codebase, a task that is more accessible than verifying commodity operating systems \cite{verifyhyperv, formsecxenon}.   
 %%%SAJJAD "consists in" replaced with "involves"
 
-%Bottleneck of the entire system in terms of performance and security is shifted to a higher privilege level (hypervisor) (if buggy hypervisor, the entire system (not only the hypervisor but also all virtual machines running on top) is at risk) \\
 
 \begin{figure*}[!htbp] 
 \begin{center}
@@ -302,8 +295,177 @@ Last but not least, virtualisation strategies that can fully exploit the hardwar
 Despite the performance improvements claimed by works like \cite{rearch, avoidvmexit} and by Intel itself, as shown in Figure \ref{intel_latency}, the gap of the performance between native and virtualised operating systems remains consistent.  
 It is clear that the performance impact is mainly caused by the latency of virtualisation-based instructions, which is mainly architecture dependent. The frequency of trapped events from the guest to the hypervisor is also important and it has been measured to have a considerable impact on the overall performance of a virtualised system, specially affecting Input/Output intensive tasks. In \cite{avoidvmexit}, this frequency has been minimised using software techniques. In the same work it is claimed that the overall transition costs are reduced up to 50\%. However, the aforementioned latency seems to be improvable up to a lower bound imposed by the technology. %%%SAJJAD: check first sentence
 
-%http://www.anandtech.com/show/2480/9
-%Although overhead has been reduced consistently by hardware support, performance impact is still not negligible, specially for I/O intensive tasks (virtualized operating systems run on additional software level rather than bare metal) \\
+
+
+
+
+
+
+\section{Drawbacks of virtualisation: a case study}\label{virt:drawback}
+The types of countermeasures proposed in this work have been designed to work together with the operating system.  The very nature of virtualisation technology relies on the regular mechanisms of guest operating system kernel such as task switching, changes to control registers and other specific events that trigger the hypervisor's intervention.
+According to the benchmarks of each virtualisation-based countermeasure explained in this work, their performance impact is, in general, relatively low. One of the keys of this limited performance impact consists in the fact that the countermeasure's code is executed at a specific time, taking advantage of the regular delays imposed by virtualisation technology. Setting the performance penalty of the countermeasure aside, for instance, the VM exit - VM entry mechanism contributes to maintain the overall performance impact close to the lower bound introduced by the technology. 
+
+As we show later in this section, when such a strategy is not applied, the performance impact of the countermeasure will likely be summed up as the performance impact of the virtualisation technology. We observe that if hypervisor's intervention is triggered whenever required, without synchronizing with the operating system, the overall performance impact will be dramatically increased. One such scenario occurred when we examined the possibility of using virtualisation technology to implement a countermeasure that protects against buffer overflows, specifically \emph{return-address attacks}. 
+
+Despite a plethora of available research in the field, the buffer overflow is still one of the most insidious vulnerabilities affecting software nowadays. According to the NIST's National Vulnerability Database\cite{nist}, 587 (10\% of all reported vulnerabilities) buffer overflow vulnerabilities were reported in 2008. Almost 90\% of those vulnerabilities had a high severity rating.
+A buffer overflow is the result of stuffing more data into a buffer than it can handle and may allow an attacker to control the execution flow of the attacked program. In a \emph{return-address attack} the attacker exploits a buffer overflow vulnerability to change the return address of a function. It is often performed together with code injection through \emph{shellcode}. 
+The execution of arbitrary code is what results in the high severity rating of most of the reported vulnerabilities. These types of attacks are known as stack-based buffer overflow attacks.
+
+A typical function that is vulnerable to a buffer overflow is given in Listing \ref{list:vulnerable}
+
+\begin{lstlisting}[caption=A function that is vulnerable to buffer overflow, label= list:vulnerable]
+char* vuln_foo(char *msg) {
+   char *p;
+   char buffer[30];
+   p=buffer;
+   strcpy(p, msg);
+}
+\end{lstlisting}    
+\vspace{5mm}
+
+The compiler translates this code and provides a standard prologue that saves the frame pointer (FP) to the stack and allocates space for the local variables and a standard epilogue that restores the saved frame and stack pointer (SP), as shown in Listing \ref{list:stdprlepi}.
+
+
+\begin{lstlisting}[caption=The standard prologue and epilogue of vuln\_foo(), label= list:stdprlepi]
+prologue:
+   pushl %ebp
+   mov %esp, %ebp
+   // local variables
+   
+  (vuln_foo body)
+
+epilogue:
+   leave  // copies %ebp into %esp
+     	  // restores %ebp from stack
+   ret
+	   // jump to address on 
+           // top of the stack
+\end{lstlisting}    
+\vspace{5mm}
+
+Our approach to prevent the exploitation of such a vulnerability consists in extending the architecture with few extra instructions, which are emulated by the hypervisor.
+%After running performance benchmarks, a high overhead was observed. Our proof-of-concept software implementation illustrates that the proposed approach is feasible, while the hardware implementation does indeed result in a negligible overhead.
+%Although the countermeasure introduced by Read-only RAD is considered safer and harder to exploit \footnote{No alterations are possible on the RAR where return addresses are saved. All other areas of the stack are still not protected.} a serious performance drawback must be taken into account. The countermeasure is very expensive because of the need to do two system calls in each function's prologue. A solution to the serious performance penalty introduced might be to implement this strategy using virtualization by adding new instructions to save and restore the return address from a read-only memory.
+
+These instructions are designed to save and restore the return address from a protected memory area.
+
+\begin{lstlisting}[caption=Instrumented assembly code of vuln\_foo(), label= list:instr]
+main:
+   call init_callretx 
+   ...
+
+vuln_foo:
+ prologue:
+    pushl %ebp
+    mov %esp, %ebp
+   // local variables
+   callx 
+
+	 (vuln_foo body)
+
+ epilogue:
+    retx
+    leave  // copies %ebp into %esp
+          // restores %ebp from stack
+    ret    // jump to address on 
+           // top of the stack
+\end{lstlisting}  
+
+At the beginning of every program, from its main function, a 4KB page is created and protected via the \emph{mprotect} system call. For each function to be protected the two hardware instructions are called at a specific time in order to prevent an attacker to tamper with the return address of the function.
+
+In the proof-of-concept we provide the hardware\footnote{This is hardware instruction with respect to the program to be protected. From a more general view point the added instructions are not implemented by special purpose hardware since they will be emulated by the hypervisor.} instruction 
+
+\begin{itemize}
+\item 
+\begin{verbatim}
+callx
+\end{verbatim}
+
+has been added before the call instruction, that will execute the body of the function. It will save the return address onto the protected memory page
+
+while instruction 
+\item 
+\begin{verbatim}
+retx
+\end{verbatim}
+has been added right before the assembler \texttt{leave} instruction in the function's epilogue. It will restore the return address from the protected memory page onto the stack.
+\end{itemize}
+
+Return addresses of nested functions are stored at higher addresses within the page with the aid of a counter that permits to handle return addresses in a \emph{Last-In-First-Out} order. This order will be preserved until the maximum number of nested functions is reached. Clearly this number depends on the size of the \emph{mprotected} page, which is 4KB in our implementation. Since the x86 architecture handles 32-bit addresses and a counter of the same size is required, our countermeasure can handle up to 1023 nested functions.\\
+
+%% Implementation details
+We implemented this concept in the Xen hypervisor \cite{xen} and optimized the most time consuming task of writing to the protected memory area. Our idea consists in clearing the write protection bit (WP) in Control Register 0 (CR0) \footnote{CR0 has control flags that modify the basic operation of the processor. WP bit is normally set to prevent supervisor from writing into read-only memory.} before any write operation to a read-only memory and then set it again. 
+The Xen hypervisor, which runs in supervisor mode, needs to be able to write to a read-only page from the user space memory. By unsetting the WP in CR0, the memory management unit (MMU) does not check whether the page is read-only or not, allowing the new instruction to write directly. This strategy leads to a performance impact that is dramatically reduced when compared to the usual mechanism that rely on the MMU\footnote{Although Xen has the necessary code to capture illegal instructions, some setup is required to handle the new instructions' opcodes. New code that checks if the opcode we want to emulate occurred has been added. When the new instruction's opcode occurs, the user space program context (\texttt{ctxt} structure) is updated. This is required before calling \texttt{x86\_emulate} which will take the context structure as parameter and performs the emulation.  Before calling this function, the WP bit of \texttt{CR0} must be unset. Thus when \texttt{x86\_emulate} is called, all writes to memory can happen without any fault. New code to emulate the \texttt{callx} and \texttt{retx} instructions in the hypervisor  has been added to \texttt{x86\_emulate.c}.}. 
+
+Since we need to save the return address from the current stack to memory (callx) and from memory back to the stack (retx), we need two functions that move data from one space to the other. As in a regular Linux kernel the \texttt{copy\_to\_user} and \texttt{copy\_from\_user} functions perform this task. A counter is needed to handle nested functions. This variable is incremented in \texttt{callx} and copied to the read-only memory and decremented in \texttt{retx} and copied back to the stack, in order to preserve a LIFO order.
+
+A check if the return address has been altered may be performed before overwriting it with the saved value. However this will lead to a higher overhead in the overall test result. 
+
+\subsection{Evaluation}\label{ins:evaluation}
+To test the performance overhead we ran several integer benchmarks from the suite SPEC CPU2000 \cite{spec2000}. We collected results running programs instrumented with the code that implements the countermeasure and without.\\
+All tests were run on a single machine with the hardware specifications reported in Table \ref{machinespecs}. 
+As mentioned before, the hypervisor used for our implementation is Xen 3.3.0. The GCC 4.2.3 compiler has been modified to instrument assembler code with the new instructions.
+
+Despite the aforementioned optimization strategy, the benchmarks show that this implementation experiences a slow-down between 5x and 30x, depending on the number of functions to be protected in the program. This latency is definitely not acceptable to consider this type of countermeasure in production systems (Table \ref{table:xenres}).
+
+%Memory overhead is 4KB, which is negligible in comparison to memory required by the program itself.
+
+\begin{table} \label{table:xenres}
+ \begin{tabular}{ |l | c | r | r |}
+    \hline
+\textbf{Program} & \textbf{Base r/t(s)}& \textbf{Instr. r/t(s)}& \textbf{Overhead} \\ \hline
+ 164.gzip & 223 & 3203 & +1336.32\%  \\ \hline
+ 175.vpr  & 372 &  2892 &  +677.42\% \\ \hline
+   176.gcc  & 225 & 2191 &    +873.78\%  \\ \hline
+   181.mcf    &640   & 3849 &    +501.41\%  \\ \hline
+   186.crafty    &114& 3676&   +3124.56\%  \\ \hline
+   256.bzip2   &307 & 5161 &   +1581.11\%  \\ \hline
+   300.twolf    &717 & 4007&   +458.86\%  \\
+     \hline
+  \end{tabular}
+  \caption{SPEC CPU2000 benchmark results of Xen implementation}
+\end{table}
+
+
+
+% \begin{table}  
+%\caption{SPEC CPU2000 benchmark results of our implementation in QEMU}
+% \begin{tabular}{ |l | c | r | r|}
+%    \hline
+%\textbf{Program} & \textbf{Base r/t(s)} & \textbf{Instr. r/t(s)} & \textbf{Overhead} \\ \hline
+% 164.gzip & 1368 & 1446 & +5.7\%  \\ \hline
+%   176.gcc      &     1010 & 1067      & +5.6\%  \\ \hline
+%   181.mcf       &    646      &	 701       & 	+8.5\%  \\ \hline
+%   186.crafty    &    1542     & 	1656      &	+7.3\%  \\ \hline
+%   197.parser  &      2652    & 	 2844     &+7,2\%  \\ \hline
+%   255.vortex   &     2458     & 	2606      &	+6\%  \\ \hline
+%   256.bzip2    &     1638     & 	1729      &	+5.5\%  \\ \hline
+%   300.twolf     &    2316     & 	2399       &	+3.5\%  \\
+%     \hline
+%  \end{tabular}
+%  \end{table}  \label{table:qemures}
+
+Moreover, our countermeasure does not detect if a buffer overflow has occurred since it overwrites the return address of the protected function, without checking if it has been altered.\\
+%Is a failed-with-segfault program better than one that repairs the fault and continues its execution as nothing happened?\\ This is still an unanswered question. 
+Our implementation allows the protected function to recover its caller's return address and continue its normal execution flow. We are aware that there are cases in which it is better to terminate the attacked program and log that a buffer overflow has occurred. Checking that the protected return address has been tainted on the stack might be implemented with more overhead.\\
+
+\subsection{Discussion}
+The main reason for which virtualisation technology inflicts such a significant overhead is given by the high number of context switches from the guest to the hypervisor and back. These transitions are needed for the hypervisor to perform the emulation of the special instructions \emph{callx} and \emph{retx}. 
+While, at operating system level, these transitions occur a limited number of times (ie. I/O operations, privileged instructions like the ones reported in Table \ref{virt:intelvt}), in this specific case they will occur an additional number of times that depends on how many functions the program is formed by (or equivalently how many times the function to be protected is called). 
+
+Therefore, while our implementation is technically feasible and even faster than RAD \cite{Chiueh:2001:RCT}, a compiler-based countermeasure that provides an equivalent protection, we conclude that it does not have a realistic chance of deployment, except in higher security environments. 
+
+
+
+
+
+
+
+
+
+
+
+
 
 \section{Rethinking security} \label{rethinking}
 One of the immediate effects of the advent of virtualisation into marketplace is the new way of thinking about security. The desire to exploit this new environment and deal with challenging and unsolved problems - mainly related to operating system kernel security - is so intense that several security solutions promptly appeared in the literature \cite{9, hvmharvard, NICKLE, dynamicdatakernel}.      
