@@ -341,19 +341,24 @@ Given $s$ the length of the smallest shellcode, the \texttt{js\_Transform()} fun
 \paragraph{Memory usage: a numerical example}
 
 Given the following data:
-%\begin{center}
-%\begin{verbatim}
-%-----------------------------------------------------
 \begin{description}
 \item original string length:  $n = 1 MB = 1.048.576 bytes$ 
 \item smallest shellcode length: $s = 25 bytes$ 
+\end{description}
+
+and the size for each field in the support data structure 
+\begin{description}
+\item number of interruptions $t = 2 bytes $
+\item position of changed character $p=1 byte$
 \item injected sequence length:  $r = 1  byte$ 
 \end{description}
 
-%-----------------------------------------------------
-%\end{verbatim}
-%\end{center}
-The number of positions will be $i= \lceil \frac{1MB}{s} \rceil= 43691$ and the memory overhead in the worst case will be $8.3\% $. 
+The number of interruptions is $i= \lceil \frac{n}{s} \rceil = \lceil \frac{1MB}{25} \rceil= 43691$ and the total size of the support data structure, in the worst case, is given by
+
+$ t + i(p+r) = 2 + 43691*2 = 87384 bytes = 86KB $
+
+
+Therefore, the memory overhead is $(\frac{1024 + 86}{1024} - 1)*100 = 8.3\% $
 
 \paragraph{Memory overhead for the benchmarks}
 \begin{table}[htdp]

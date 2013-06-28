@@ -279,7 +279,7 @@ speedup         &+26\% & +19\% & +7\% & +11\% \\
 in-hyper & 0.30 & 0.32 & 2.32 & 0.74   \\
 HF    & 0.14 & 0.21 & 2.10 & 0.45  \\  
 \hline
-\bf{Speedup}      &  +53\%   & +34\%    &  +10\%    & +39\%      \\
+\bf{Speed increase}      &  +53\%   & +34\%    &  +10\%    & +39\%      \\
 \hline
 \hline
 
@@ -289,7 +289,7 @@ in-hyper 			& 5.37 & 1923 & 4087 & 5.58 \\
 HF 		& 2.60 & 1788 & 3984 & 5.00 \\
 
 \hline
-\bf{Speedup}			& +51\%    & +8\%       & +2.5\%     &  +10\% \\
+\bf{Speed increase}			& +51\%    & +8\%       & +2.5\%     &  +10\% \\
 \hline
 
 \end{tabular}
@@ -311,7 +311,7 @@ To interpret the results shown in Table~\ref{guestmicro}, we recall that the ori
 %checks performed by \HRK{} increase the latency of context switches and
 %system calls.
 %
-In contrast, the implementation within the HyperForce framework employs interrupt events to trigger in-guest integrity checks. This eliminates overheads with respect to switching execution context and address mapping between the hypervisor and the guest OS, while the remaining computational overhead affects guest operations more evenly. As can be seen in Table~\ref{guestmicro}, the above changes imply significant speedups on system call invocations (53\%) and context switches (10\%). Although LMbench is often considered as insufficient for evaluating system performance~\cite{lmbenchevil}, our example shows that the benchmark suite can be used to neatly distinguish the actual speedup on system call invocations (\enquote{null call}) from the impact on a particular system call execution (e.g. \enquote{open/close}).
+In contrast, the implementation within the HyperForce framework employs interrupt events to trigger in-guest integrity checks. This eliminates overheads with respect to switching execution context and address mapping between the hypervisor and the guest OS, while the remaining computational overhead affects guest operations more evenly. As can be seen in Table~\ref{guestmicro}, the above changes imply significant speedups on system call invocations (53\%) and context switches (10\%). Although LMbench is often considered as insufficient for evaluating system performance~\cite{lmbenchevil}, our example shows that the benchmark suite can be used to neatly distinguish the actual increase of speed on system call invocations (\enquote{null call}) from the impact on a particular system call execution (e.g. \enquote{open/close}).
 
 One may think that our approach to trigger security checks through interrupts in HyperForce reduces the security of the protected system compared to the original in-hypervisor: in the latter case an attacker increases their chance of being detected with every system call raised or process switch. However for a total
 of 15,000 protected kernel objects, the worst-case detection time reported in Chapter~\ref{hr:evaluation} is about 6 seconds. 
