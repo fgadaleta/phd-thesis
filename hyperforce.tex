@@ -60,7 +60,7 @@ Once the aforesaid virtual device has been created and loaded into the virtualis
 \begin{figure} 
 \begin{center}
 \includegraphics[scale=0.5]{images/hyperforce_schema.pdf}
-\caption{Schema of HyperForce. Highlighted components indicate parts of the system that need instrumentation/modification}
+\caption{Schema of HyperForce. Highlighted components indicate parts of the system that need instrumentation/modification. The trusted module within the guest is never unloaded.}
 \label{hyperforce_schema}
 \end{center}
 \end{figure}
@@ -141,7 +141,7 @@ A schema of the aforementioned integrity checking method implemented in Linux/KV
 \begin{figure}
 \begin{center}
 \includegraphics[scale=0.5]{images/hellorootkitty_schema.pdf}
-\caption{Schema of in-hypervisor approach implemented in Linux KVM. Highlighted components indicate parts of the system that need instrumentation/modification}
+\caption{Schema of in-hypervisor approach implemented in Linux KVM. Highlighted components indicate parts of the system that need instrumentation/modification. The trusted module installed in the guest is unloaded after boot.}
 \label{hellorootkitty_schema}
 \end{center}
 \end{figure}
