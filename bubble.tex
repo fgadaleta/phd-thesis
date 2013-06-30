@@ -353,10 +353,18 @@ and the size for each field in the support data structure
 \item injected sequence length:  $r = 1  byte$ 
 \end{description}
 
-The number of interruptions is $i= \lceil \frac{n}{s} \rceil = \lceil \frac{1MB}{25} \rceil= 43691$ and the total size of the support data structure, in the worst case, is given by
+The number of interruptions is $i= \lceil \frac{n}{s} \rceil = \lceil \frac{1MB}{25} \rceil= 43691$ and the total size $ds$ of the support data structure, in the worst case, is given by Equation \ref{struct}
 
-$ t + i(p+r) = 2 + 43691*2 = 87384 bytes = 86KB $
 
+\begin{equation}\label{struct}
+ds = t + i\times(p+r) 
+\end{equation}
+
+Referring to the above numerical example, the total size of the data structure is given in Equation \ref{structnum} 
+
+\begin{equation}\label{structnum}
+ds = 2 + 43691 \times 2 = 87384 [bytes] = 86 [KB] 
+\end{equation}
 
 Therefore, the memory overhead is $(\frac{1024 + 86}{1024} - 1)*100 = 8.3\% $
 
