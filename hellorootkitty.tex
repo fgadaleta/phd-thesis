@@ -347,7 +347,7 @@ w counterm.		& 618.8              & 4842          & 697.8  &\\
 \hline				
 \bf{overhead (\%)}  	&  -0.43\%         &  -0.12\%    & 0.12\% & \\ \hline
 \end{tabular}
-\caption{Performance overhead our countermeasure in action measured with lmbench benchmark suite}
+\caption{Performance overhead of our countermeasure in action measured with lmbench benchmark suite. IO tasks and file system operations can show better performance when the countermeasure is active, due to the longer time spent in hypervisor space. While user experience is generally slower, DMA operations can show slightly better throughput.}
 \label{microbench}
 \end{table}
 
