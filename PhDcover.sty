@@ -23,11 +23,11 @@
 % FONTS: kul logo & 10/12/14 (bold) sans serif 
 \font\kul=kullogo
 \font\tensf=cmss10
-\font\tenbsf=cmssbx10
+\font\tenbsf=cmssbx10 scaled\magstep2   % graduate size
 \font\twvsf=cmss12
-\font\twvbsf=cmssbx10 scaled\magstep1
-\font\frtbsf=cmss10 scaled\magstep2
-\font\svtbsf=cmss10 scaled\magstep3	% provided in case
+\font\twvbsf=cmssbx10 scaled\magstep3   
+\font\frtbsf=cmss10 scaled\magstep4		% title size
+\font\svtbsf=cmss10 scaled\magstep2	% provided in case
 
 % available degrees
 \def\@INF{INF}	 % toegepaste wetenschappen -- afdeling informatica
@@ -51,12 +51,12 @@
 
 % degree as formulated
 \gdef\degree@{%
-	Proefschrift voorgedragen tot\\
-	het behalen van het doctoraat\\
-	in de
+	Dissertation presented  in partial\\
+	fulfillment of the requirements for the \\
+	degree of Doctor in 
 	\ifcase\@degree{\@deg}%
 		???				% ??
-	\or	ingenieurswetenschappen	% INF
+	\or	Engineering	% INF
 	\or	ingenieurswetenschappen	% NATW
 	\or	wetenschappen			% WET
 	\or	informatica			% WETINF
@@ -71,24 +71,24 @@
 % caption as formulated
 \gdef\addr@{%
 	\noindent\hfill\hbox{%
-		\unhcopy\logozone
+	%%	\unhcopy\logozone
 		\hskip 10mm
 		\vrule width 0.5pt
 		\hskip 10mm
 		\vbox to 0pt{\vbox to\dp\logozone{%	% rather awkward :-(
 			\vfil
 			\twvbsf
-			\hbox{KATHOLIEKE UNIVERSITEIT LEUVEN}%
+			\hbox{ }%
 			\small\twvsf	% better looking interlineskip
 			\ifcase\@degree{\@deg}%
 				% ??
-			\hbox{FACULTEIT INGENIEURSWETENSCHAPPEN}%
-			\hbox{DEPARTEMENT COMPUTERWETENSCHAPPEN}%
-			\hbox{AFDELING ???}%
+			\hbox{}%
+			\hbox{}%
+			\hbox{}%
 			\or	% INF
-			\hbox{FACULTEIT INGENIEURSWETENSCHAPPEN}%
-			\hbox{DEPARTEMENT COMPUTERWETENSCHAPPEN}%
-			\hbox{AFDELING INFORMATICA}%
+			\hbox{}%
+			\hbox{}%
+			\hbox{}%
 			\or	% NATW
 			\hbox{FACULTEIT INGENIEURSWETENSCHAPPEN}%
 			\hbox{DEPARTEMENT COMPUTERWETENSCHAPPEN}%
@@ -99,11 +99,11 @@
 			\hbox{FACULTEIT INGENIEURSWETENSCHAPPEN}%
 			\hbox{DEPARTEMENT COMPUTERWETENSCHAPPEN}%
 			\or	% WETINF
-			\hbox{FACULTEIT WETENSCHAPPEN}%
-			\hbox{FACULTEIT INGENIEURSWETENSCHAPPEN}%
+			\hbox{}%
+			\hbox{}%
 			\hbox{DEPARTEMENT COMPUTERWETENSCHAPPEN}%
 			\fi
-			\hbox{Celestijnenlaan 200\,A --- B-3001 Leuven}
+			\hbox{}
 			\vfil
 		}\vss}%
 	}\hfill\hbox{}%
@@ -137,29 +137,40 @@
 	% caption
 	\vbox{\addr@}
 	% title; vertical ratio 2:1
-	\vfill\vfill
+	\vspace{2cm}
 	\begin{center}
 		\begin{minipage}[t]{15cm}	% takes care of linebreaking
-			\begin{center}
+			%%\begin{center}
+				%%\mbox
 				{\Large\frtbsf\@title\par\noindent}
 				% needed for correct line spacing
-			\end{center}
+				
+			%%\end{center}
+			\vspace{1cm}
+			{\tenbsf\grad@}   %% graduate
 		\end{minipage}
 	\end{center}
 	\vfill
+
+	
+	
 	\vbox to 8cm{\tensf
 		\hbox to\textwidth{\noindent
+		
+		
 			% supervisor(s)/jury&udc
 			\begin{tabular}[t]{@{}l@{}}
 				#1
 			\end{tabular}%
 			\hfill
+			
 			% degree & graduate
 			\begin{tabular}[t]{@{}l@{}}
 				\degree@\\[3mm]
-				door\\[3mm]
-				{\tenbsf\grad@}
+				\\[3mm]
+				%%{\tenbsf\grad@}
 			\end{tabular}%
+			
 		}%
 		\vfil
 		\@UDC
@@ -169,7 +180,7 @@
 }
 
 \def\firstcoverpage#1{\def\@UDC{\hbox{}}\coverpage{#1}}
-\def\secondcoverpage#1{\def\@UDC{\hbox{U.D.C. \@udc}}\coverpage{#1}}
+\def\secondcoverpage#1{\def\@UDC{\hbox{ \@udc}}\coverpage{#1}}
 
 \def\extracoverpage#1{%
 	\newpage\thispagestyle{empty}
