@@ -82,7 +82,9 @@ In order to provide better web experience, modern web browsers are supported by 
  
 %In the first part of the thesis, we investigate the applicability of virtualization technology for countermeasures against the first type of attack described. Since virtualisation is increasing its popularity every year and this trend does not seem to reduce, we think that a logical place to increase security might be at the level of the hypervisor. 
 
-The first part of our work tackles the problem of attacks to operating system kernels. Virtualisation technology fits very well in such scenarios due to a number of interesting features that come by design, such as isolation and hardware support. Therefore, we argue that a logical place where security ought to be increased is at the level of the \emph{hypervisor}, the layer that is interposed between the virtual machine and the physical hardware. In Chapter \ref{virt:paradigm} we describe virtualisation technology and we provide details regarding the interposition of the hypervisor during execution of the operating systems running on top.
+The first part of our work tackles the problem of attacks to operating system kernels. Virtualisation technology fits very well in such scenarios due to a number of interesting features that come by design, such as isolation and hardware support. Therefore, we argue that a logical place where security ought to be increased is at the level of the \emph{hypervisor}, the layer that is interposed between the virtual machine and the physical hardware. 
+
+In Chapter \ref{virt:paradigm} we describe virtualisation technology and we provide details regarding the interposition of the hypervisor during execution of the operating systems running on top. In the same chapter we also explain the drawbacks of virtualisation technology - in terms of performance overhead - with the aid of a case study that involves the mitigation of \emph{stack based buffer overflows} - and provide our conclusion about the reasons of such a performance impact.
 
 A countermeasure against kernel attacks, which relies on the cooperation between the target system and the hypervisor, is described in Chapter \ref{hellorootkitty}. A mitigation that we found to be effective against the corruption of kernel code at runtime consists in checking the integrity of potential targets, independently from the execution of the virtual machine, namely the target system. We identify the hypervisor as a suitable place in which implementing the aforementioned checkings.
   
@@ -95,7 +97,7 @@ Although security of web browsers is a very active field of research, very littl
 Therefore, we provide a security measure that improves web browser security and we explore the benefits of virtualisation technology in this area. A recent heap-based attack, by which attackers can allocate malicious objects to the heap of a web browser, by loading a specially forged web page that contains Javascript code, has drawn the attention of security researchers who operate in the field of browser security. We explain the details of a lightweight countermeasure against such attacks, known as \emph{heap-spraying}. We also argue in favour of the role that virtualisation technology can play within this environment and discuss a possible strategy for integrating such a countermeasure into web browsers and applications with a similar architecture, delivered on demand. Details are provided in Chapter \ref{bubble}.
 
 
-Conclusions are given in Chapter \ref{conclusion}. In the same chapter we also explain the drawbacks of virtualisation technology - in terms of performance overhead - with the aid of a case study that involves the mitigation of \emph{stack based buffer overflows} - and provide our conclusion about the reasons of such a performance impact. Future work and research opportunities are discussed in the same chapter.
+Conclusions are given in Chapter \ref{conclusion}. Future work and research opportunities are discussed in the same chapter.
 
 
 The work presented in this dissertation has led to the following publications:
@@ -111,9 +113,3 @@ The work presented in this dissertation has led to the following publications:
 \item Francesco Gadaleta, Nick Nikiforakis, Jan Tobias MŸhlberg, Wouter Joosen, Hyperforce: hypervisor-enforced execution of security-critical code, IFIP Advances in Information and Communication Technology, Heraklion, 04-06 June 2012
 \end{itemize}
 
-
-
-%%% Local Variables: 
-%%% mode: latex
-%%% TeX-master: "thesis"
-%%% End: 
